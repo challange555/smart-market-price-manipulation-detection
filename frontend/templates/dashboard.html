@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Market Price Manipulation Detection System</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #172033;
+        }
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .header {
+            background: #172033;
+            color: white;
+            padding: 25px 40px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .header p {
+            margin: 8px 0 0;
+            color: #cbd5e1;
+            font-size: 16px;
+        }
+
+
+        /* =====================================================
+           CONTAINER
+        ===================================================== */
+
+        .container {
+            padding: 30px 40px;
+        }
+
+
+        /* =====================================================
+           CONTROLS
+        ===================================================== */
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        select {
+            min-width: 290px;
+            padding: 13px 16px;
+            font-size: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: white;
+            cursor: pointer;
+        }
+
+        #companySearch {
+            min-width: 290px;
+            padding: 13px 16px;
+            font-size: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: white;
+        }
+
+        #companySearch:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        @media (max-width: 700px) {
+            #companySearch {
+                width: 100%;
+                min-width: 0;
+            }
+        }
+
+        button {
+            padding: 13px 24px;
+            font-size: 15px;
+            font-weight: bold;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+
+        /* =====================================================
+           STATUS
+        ===================================================== */
+
+        #status {
+            margin: 15px 0 20px;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .success {
+            color: #15803d;
+        }
+
+        .error {
+            color: #dc2626;
+        }
+
+        .loading {
+            color: #2563eb;
+        }
+
+
+        /* =====================================================
+           SUMMARY CARDS
+        ===================================================== */
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h3 {
+            margin: 0 0 12px;
+            color: #64748b;
+            font-size: 17px;
+        }
+
+        .card .value {
+            font-size: 30px;
+            font-weight: bold;
+            color: #172033;
+        }
+
+
+        /* =====================================================
+           CHART GRID
+        ===================================================== */
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+
+        /* =====================================================
+           CHART CONTAINER
+        ===================================================== */
+
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .chart-container h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .market-chart-wrapper {
+            position: relative;
+            height: 500px;
+            width: 100%;
+        }
+
+        .risk-chart-wrapper {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+
+        /* =====================================================
+           RISK SUMMARY
+        ===================================================== */
+
+        .risk-summary {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .risk-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            border-radius: 8px;
+            background: #f8fafc;
+            font-weight: bold;
+        }
+
+        .risk-high {
+            color: #dc2626;
+        }
+
+        .risk-medium {
+            color: #d97706;
+        }
+
+        .risk-low {
+            color: #16a34a;
+        }
+
+
+        /* =====================================================
+           TABLE
+        ===================================================== */
+
+        .table-container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+        }
+
+        .table-container h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1100px;
+        }
+
+        th,
+        td {
+            padding: 13px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        th {
+            background: #172033;
+            color: white;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+
+        /* =====================================================
+           RISK LEVELS
+        ===================================================== */
+
+        .high {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .medium {
+            color: #d97706;
+            font-weight: bold;
+        }
+
+        .low {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+
+        /* =====================================================
+           MANIPULATION REASON
+        ===================================================== */
+
+        .reason {
+            text-align: left;
+            min-width: 300px;
+            line-height: 1.4;
+        }
+
+
+        /* =====================================================
+           EMPTY
+        ===================================================== */
+
+        .empty {
+            text-align: center;
+            padding: 25px;
+            color: #64748b;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 1100px) {
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 1000px) {
+
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            select {
+                width: 100%;
+                min-width: 0;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .market-chart-wrapper {
+                height: 350px;
+            }
+
+            .risk-chart-wrapper {
+                height: 300px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<div class="header">
+
+    <h1>
+        Smart Market Price Manipulation Detection System
+    </h1>
+
+    <p>
+        Market Monitoring & Risk Analysis Dashboard
+    </p>
+
+</div>
+
+
+<div class="container">
+
+
+    <!-- =====================================================
+         STOCK CONTROLS
+    ====================================================== -->
+
+    <div class="controls">
+
+        <input
+            type="text"
+            id="companySearch"
+            placeholder="Search company or stock symbol..."
+            autocomplete="off"
+        >
+
+        <select id="stock">
+
+            <option value="">
+                Loading stocks...
+            </option>
+
+        </select>
+
+
+        <button
+            id="analyzeButton"
+            onclick="analyzeMarket()"
+            disabled
+        >
+            Analyze Market
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         STATUS
+    ====================================================== -->
+
+    <div id="status">
+        Loading available stocks...
+    </div>
+
+
+    <!-- =====================================================
+         SUMMARY CARDS
+    ====================================================== -->
+
+    <div class="cards">
+
+
+        <div class="card">
+
+            <h3>
+                Total Records
+            </h3>
+
+            <div
+                class="value"
+                id="totalRecords"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                Suspicious Events
+            </h3>
+
+            <div
+                class="value"
+                id="eventCount"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                High Risk Events
+            </h3>
+
+            <div
+                class="value"
+                id="highRisk"
+            >
+                0
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <h3>
+                Maximum Risk Score
+            </h3>
+
+            <div
+                class="value"
+                id="maxRisk"
+            >
+                0
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CHART SECTION
+    ====================================================== -->
+
+    <div class="chart-grid">
+
+
+        <!-- MARKET CHART -->
+
+        <div class="chart-container">
+
+            <h2>
+                Market Price & Volume Analysis
+            </h2>
+
+            <div class="market-chart-wrapper">
+
+                <canvas id="marketChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+        <!-- RISK DISTRIBUTION -->
+
+        <div class="chart-container">
+
+            <h2>
+                Risk Distribution
+            </h2>
+
+            <div class="risk-chart-wrapper">
+
+                <canvas id="riskChart"></canvas>
+
+            </div>
+
+
+            <div class="risk-summary">
+
+                <div class="risk-item">
+
+                    <span class="risk-high">
+                        High Risk
+                    </span>
+
+                    <span id="riskHighCount">
+                        0
+                    </span>
+
+                </div>
+
+
+                <div class="risk-item">
+
+                    <span class="risk-medium">
+                        Medium Risk
+                    </span>
+
+                    <span id="riskMediumCount">
+                        0
+                    </span>
+
+                </div>
+
+
+                <div class="risk-item">
+
+                    <span class="risk-low">
+                        Low Risk
+                    </span>
+
+                    <span id="riskLowCount">
+                        0
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SUSPICIOUS EVENTS TABLE
+    ====================================================== -->
+
+    <div class="table-container">
+
+        <h2>
+            Detected Suspicious Events
+        </h2>
+
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Date</th>
+
+                    <th>Close Price</th>
+
+                    <th>Volume</th>
+
+                    <th>Price Change %</th>
+
+                    <th>Risk Score</th>
+
+                    <th>Risk Level</th>
+
+                    <th>Manipulation Reason</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="resultsTable">
+
+                <tr>
+
+                    <td
+                        colspan="7"
+                        class="empty"
+                    >
+                        Select a stock and click
+                        "Analyze Market".
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+
+/* =========================================================
+   GLOBAL CHART VARIABLES
+========================================================= */
+
+let marketChart = null;
+
+let riskChart = null;
+
+
+
+/* =========================================================
+   COMPANY NAME SEARCH
+========================================================= */
+
+const companyAliases = {
+    "apple": "AAPL",
+    "apple inc": "AAPL",
+    "microsoft": "MSFT",
+    "microsoft corporation": "MSFT",
+    "tesla": "TSLA",
+    "tesla inc": "TSLA",
+    "amazon": "AMZN",
+    "alphabet": "GOOGL",
+    "google": "GOOGL",
+    "meta": "META",
+    "facebook": "META",
+    "nvidia": "NVDA",
+    "netflix": "NFLX",
+    "jpmorgan": "JPM",
+    "jpmorgan chase": "JPM",
+    "intel": "INTC",
+    "amd": "AMD",
+    "adobe": "ADBE",
+    "paypal": "PYPL",
+    "salesforce": "CRM",
+    "oracle": "ORCL",
+    "ibm": "IBM",
+    "qualcomm": "QCOM",
+    "broadcom": "AVGO",
+    "uber": "UBER",
+    "airbnb": "ABNB",
+    "shopify": "SHOP",
+    "spotify": "SPOT",
+    "nike": "NKE",
+    "starbucks": "SBUX",
+    "walmart": "WMT",
+    "visa": "V",
+    "mastercard": "MA",
+    "bank of america": "BAC",
+    "goldman sachs": "GS",
+    "morgan stanley": "MS",
+    "exxon mobil": "XOM",
+    "chevron": "CVX"
+};
+
+let availableStocks = [];
+
+function normalizeSearch(value) {
+    return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function findStockSymbol(searchText) {
+    const query = normalizeSearch(searchText);
+
+    if (!query) return "";
+
+    const ticker = query.toUpperCase();
+
+    if (availableStocks.includes(ticker)) {
+        return ticker;
+    }
+
+    if (companyAliases[query]) {
+        return availableStocks.includes(companyAliases[query])
+            ? companyAliases[query]
+            : "";
+    }
+
+    const alias = Object.keys(companyAliases).find(
+        name => name.includes(query) || query.includes(name)
+    );
+
+    if (alias && availableStocks.includes(companyAliases[alias])) {
+        return companyAliases[alias];
+    }
+
+    return "";
+}
+
+function searchCompany() {
+    const input = document.getElementById("companySearch");
+    const select = document.getElementById("stock");
+    const status = document.getElementById("status");
+
+    const query = input.value.trim();
+    const symbol = findStockSymbol(query);
+
+    if (!symbol) {
+        status.innerText =
+            "Company not found. Try a supported company name or stock symbol.";
+        status.className = "error";
+        return;
+    }
+
+    select.value = symbol;
+
+    status.innerText =
+        "Found " + query + " → " + symbol + ". Click Analyze Market.";
+    status.className = "success";
+}
+
+
+/* =========================================================
+   LOAD ALL AVAILABLE STOCKS
+========================================================= */
+
+async function loadStocks() {
+
+    const stockSelect =
+        document.getElementById("stock");
+
+    const analyzeButton =
+        document.getElementById("analyzeButton");
+
+    const status =
+        document.getElementById("status");
+
+
+    try {
+
+        const response =
+            await fetch("/stocks");
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok || data.error) {
+
+            throw new Error(
+                data.error || "Unable to load stocks."
+            );
+
+        }
+
+
+        let stocks = [];
+
+
+        /*
+            Backend can return:
+
+            ["AAPL", "MSFT", "TSLA"]
+
+            OR
+
+            {"stocks": ["AAPL", "MSFT"]}
+        */
+
+
+        if (Array.isArray(data)) {
+
+            stocks = data;
+
+        }
+
+        else if (Array.isArray(data.stocks)) {
+
+            stocks = data.stocks;
+
+        }
+
+
+        if (stocks.length === 0) {
+
+            stockSelect.innerHTML =
+                '<option value="">No stocks found</option>';
+
+
+            status.innerText =
+                "No stock CSV files were found.";
+
+
+            status.className = "error";
+
+
+            return;
+
+        }
+
+
+        /* Remove duplicates */
+
+        stocks = [...new Set(stocks)];
+
+
+        /* Sort alphabetically */
+
+        stocks.sort();
+
+        availableStocks = stocks;
+
+
+        /* Clear dropdown */
+
+        stockSelect.innerHTML = "";
+
+
+        /* Add stocks */
+
+        stocks.forEach(stock => {
+
+            const option =
+                document.createElement("option");
+
+
+            option.value = stock;
+
+            option.textContent = stock;
+
+
+            stockSelect.appendChild(option);
+
+        });
+
+
+        /* Select AAPL by default */
+
+        if (stocks.includes("AAPL")) {
+
+            stockSelect.value = "AAPL";
+
+        }
+
+
+        /* Enable analyze button */
+
+        analyzeButton.disabled = false;
+
+
+        status.innerText =
+            stocks.length +
+            " stocks loaded successfully. Select a stock and analyze.";
+
+
+        status.className = "success";
+
+    }
+
+
+    catch (error) {
+
+        console.error(error);
+
+
+        status.innerText =
+            "Unable to load available stocks: " +
+            error.message;
+
+
+        status.className = "error";
+
+    }
+
+}
+
+
+
+/* =========================================================
+   ANALYZE SELECTED STOCK
+========================================================= */
+
+async function analyzeMarket() {
+
+    const stock =
+        document.getElementById("stock").value;
+
+
+    const status =
+        document.getElementById("status");
+
+
+    const button =
+        document.getElementById("analyzeButton");
+
+
+    if (!stock) {
+
+        status.innerText =
+            "Please select a stock.";
+
+
+        status.className = "error";
+
+
+        return;
+
+    }
+
+
+    button.disabled = true;
+
+
+    button.innerText =
+        "Analyzing...";
+
+
+    status.innerText =
+        "Analyzing " +
+        stock +
+        " market data...";
+
+
+    status.className = "loading";
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/analyze?stock=" +
+                encodeURIComponent(stock)
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok || data.error) {
+
+            throw new Error(
+                data.error ||
+                "Analysis failed."
+            );
+
+        }
+
+
+        status.innerText =
+            stock +
+            " analysis completed successfully.";
+
+
+        status.className = "success";
+
+
+        displayResults(data);
+
+    }
+
+
+    catch (error) {
+
+        console.error(error);
+
+
+        status.innerText =
+            "Error: " +
+            error.message;
+
+
+        status.className = "error";
+
+    }
+
+
+    finally {
+
+        button.disabled = false;
+
+
+        button.innerText =
+            "Analyze Market";
+
+    }
+
+}
+
+
+
+/* =========================================================
+   DISPLAY RESULTS
+========================================================= */
+
+function displayResults(data) {
+
+    const table =
+        document.getElementById("resultsTable");
+
+
+    table.innerHTML = "";
+
+
+    const suspiciousData =
+        data.data || [];
+
+
+    /* =====================================================
+       SUMMARY CARDS
+    ===================================================== */
+
+    document.getElementById("totalRecords").innerText =
+        Number(
+            data.total_records || 0
+        ).toLocaleString();
+
+
+    document.getElementById("eventCount").innerText =
+        Number(
+            data.total_suspicious ||
+            suspiciousData.length
+        ).toLocaleString();
+
+
+    document.getElementById("highRisk").innerText =
+        Number(
+            data.high_risk || 0
+        ).toLocaleString();
+
+
+    document.getElementById("maxRisk").innerText =
+        data.max_risk || 0;
+
+
+
+    /* =====================================================
+       RISK DISTRIBUTION COUNTS
+    ===================================================== */
+
+    const highRisk =
+        Number(data.high_risk || 0);
+
+    const mediumRisk =
+        Number(data.medium_risk || 0);
+
+    const lowRisk =
+        Number(data.low_risk || 0);
+
+
+    document.getElementById(
+        "riskHighCount"
+    ).innerText =
+        highRisk.toLocaleString();
+
+
+    document.getElementById(
+        "riskMediumCount"
+    ).innerText =
+        mediumRisk.toLocaleString();
+
+
+    document.getElementById(
+        "riskLowCount"
+    ).innerText =
+        lowRisk.toLocaleString();
+
+
+
+    /* =====================================================
+       TABLE
+    ===================================================== */
+
+    if (suspiciousData.length === 0) {
+
+        table.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="7"
+                    class="empty"
+                >
+                    No suspicious market activity
+                    detected for this stock.
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+
+    else {
+
+        suspiciousData.forEach(item => {
+
+            const row =
+                document.createElement("tr");
+
+
+            const riskLevel =
+                item.Risk_Level || "Low";
+
+
+            const riskClass =
+                riskLevel.toLowerCase();
+
+
+            const manipulationReason =
+                item.Manipulation_Reason ||
+                "Unusual market activity";
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${item.Date}
+                </td>
+
+
+                <td>
+                    ${Number(
+                        item.Close
+                    ).toFixed(4)}
+                </td>
+
+
+                <td>
+                    ${Number(
+                        item.Volume
+                    ).toLocaleString()}
+                </td>
+
+
+                <td>
+                    ${Number(
+                        item["Price_Change_%"]
+                    ).toFixed(2)}%
+                </td>
+
+
+                <td>
+                    ${item.Risk_Score}
+                </td>
+
+
+                <td class="${riskClass}">
+                    ${riskLevel}
+                </td>
+
+
+                <td class="reason">
+                    ${manipulationReason}
+                </td>
+
+            `;
+
+
+            table.appendChild(row);
+
+        });
+
+    }
+
+
+    /* =====================================================
+       CREATE MARKET CHART
+    ===================================================== */
+
+    createMarketChart(data);
+
+
+    /* =====================================================
+       CREATE RISK CHART
+    ===================================================== */
+
+    createRiskChart(
+        highRisk,
+        mediumRisk,
+        lowRisk
+    );
+
+}
+
+
+
+/* =========================================================
+   MARKET PRICE & VOLUME CHART
+========================================================= */
+
+function createMarketChart(data) {
+
+    const canvas =
+        document.getElementById("marketChart");
+
+
+    /* Destroy previous chart */
+
+    if (marketChart !== null) {
+
+        marketChart.destroy();
+
+        marketChart = null;
+
+    }
+
+
+    const chartData =
+        data.chart_data || [];
+
+
+    if (chartData.length === 0) {
+
+        return;
+
+    }
+
+
+    /* Dates */
+
+    const labels =
+        chartData.map(
+            item => item.Date
+        );
+
+
+    /* Close prices */
+
+    const closePrices =
+        chartData.map(
+            item => Number(item.Close)
+        );
+
+
+    /* Trading volume */
+
+    const volumes =
+        chartData.map(
+            item => Number(item.Volume)
+        );
+
+
+    /* Suspicious activity */
+
+    const suspiciousPoints =
+        chartData.map(item => {
+
+            if (item.Suspicious) {
+
+                return Number(item.Close);
+
+            }
+
+            return null;
+
+        });
+
+
+    /* Create chart */
+
+    marketChart =
+        new Chart(
+            canvas,
+            {
+
+                type: "line",
+
+
+                data: {
+
+                    labels: labels,
+
+
+                    datasets: [
+
+                        {
+
+                            label: "Close Price",
+
+                            data: closePrices,
+
+                            borderWidth: 2,
+
+                            pointRadius: 2,
+
+                            tension: 0.2,
+
+                            yAxisID: "price"
+
+                        },
+
+
+                        {
+
+                            label: "Trading Volume",
+
+                            data: volumes,
+
+                            borderWidth: 1,
+
+                            pointRadius: 1,
+
+                            tension: 0.1,
+
+                            yAxisID: "volume"
+
+                        },
+
+
+                        {
+
+                            label: "Suspicious Activity",
+
+                            data: suspiciousPoints,
+
+                            borderWidth: 0,
+
+                            pointRadius: 6,
+
+                            pointHoverRadius: 8,
+
+                            showLine: false,
+
+                            yAxisID: "price"
+
+                        }
+
+                    ]
+
+                },
+
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+
+                    interaction: {
+
+                        mode: "index",
+
+                        intersect: false
+
+                    },
+
+
+                    plugins: {
+
+                        legend: {
+
+                            display: true,
+
+                            position: "top"
+
+                        },
+
+
+                        tooltip: {
+
+                            enabled: true
+
+                        }
+
+                    },
+
+
+                    scales: {
+
+                        x: {
+
+                            ticks: {
+
+                                maxTicksLimit: 15
+
+                            }
+
+                        },
+
+
+                        price: {
+
+                            type: "linear",
+
+                            position: "left",
+
+
+                            title: {
+
+                                display: true,
+
+                                text: "Close Price"
+
+                            }
+
+                        },
+
+
+                        volume: {
+
+                            type: "linear",
+
+                            position: "right",
+
+
+                            title: {
+
+                                display: true,
+
+                                text: "Trading Volume"
+
+                            },
+
+
+                            grid: {
+
+                                drawOnChartArea: false
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+}
+
+
+
+/* =========================================================
+   RISK DISTRIBUTION CHART
+========================================================= */
+
+function createRiskChart(
+    highRisk,
+    mediumRisk,
+    lowRisk
+) {
+
+    const canvas =
+        document.getElementById("riskChart");
+
+
+    /* Destroy previous chart */
+
+    if (riskChart !== null) {
+
+        riskChart.destroy();
+
+        riskChart = null;
+
+    }
+
+
+    /* Create doughnut chart */
+
+    riskChart =
+        new Chart(
+            canvas,
+            {
+
+                type: "doughnut",
+
+
+                data: {
+
+                    labels: [
+                        "High Risk",
+                        "Medium Risk",
+                        "Low Risk"
+                    ],
+
+
+                    datasets: [
+
+                        {
+
+                            data: [
+                                highRisk,
+                                mediumRisk,
+                                lowRisk
+                            ],
+
+                            backgroundColor: [
+                                "#dc2626",
+                                "#f59e0b",
+                                "#16a34a"
+                            ],
+
+                            borderWidth: 2,
+
+                            borderColor: "#ffffff"
+
+                        }
+
+                    ]
+
+                },
+
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+
+                    plugins: {
+
+                        legend: {
+
+                            display: true,
+
+                            position: "bottom"
+
+                        },
+
+
+                        tooltip: {
+
+                            enabled: true
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+}
+
+
+
+/* =========================================================
+   SEARCH EVENTS
+========================================================= */
+
+document.getElementById("companySearch").addEventListener(
+    "keydown",
+    function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            searchCompany();
+        }
+    }
+);
+
+
+/* =========================================================
+   LOAD STOCKS WHEN PAGE OPENS
+========================================================= */
+
+window.addEventListener(
+    "DOMContentLoaded",
+    loadStocks
+);
+
+
+</script>
+
+
+</body>
+
+</html>
