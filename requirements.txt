@@ -1,0 +1,9 @@
+Flask
+pandas
+numpy
+scikit-learn
+matplotlib
+joblib
+yfinance
+python-dotenv
+gunicorn
