@@ -1,32 +1,26 @@
 def calculate_risk_score(row):
+
     score = 0
 
     price_change = abs(row["Price_Change_%"])
+    volume_ratio = row["Volume_Ratio"]
 
-    # Price movement contribution
-    if price_change >= 10:
+    # Price movement
+    if price_change >= 3:
         score += 50
-    elif price_change >= 7:
+    elif price_change >= 2:
         score += 40
-    elif price_change >= 5:
+    elif price_change >= 1:
         score += 30
-    elif price_change >= 3:
-        score += 15
 
-    # Volume contribution
-    if row["Volume_Spike"]:
-        volume_ratio = row["Volume"] / row["Average_Volume"]
+    # Volume movement
+    if volume_ratio >= 5:
+        score += 50
+    elif volume_ratio >= 3:
+        score += 40
+    elif volume_ratio >= 2:
+        score += 30
 
-        if volume_ratio >= 5:
-            score += 50
-        elif volume_ratio >= 3:
-            score += 40
-        elif volume_ratio >= 2:
-            score += 30
-        else:
-            score += 15
-
-    # Risk classification
     score = min(score, 100)
 
     if score >= 70:

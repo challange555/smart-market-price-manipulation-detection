@@ -1,19 +1,42 @@
 import pandas as pd
 
+
 def detect_price_and_volume(df):
-    # Daily price change
-    df["Price_Change_%"] = df["Close"].pct_change() * 100
 
-    # 20-day average volume
-    df["Average_Volume"] = df["Volume"].rolling(20).mean()
+    df = df.copy()
 
-    # Volume spike
-    df["Volume_Spike"] = df["Volume"] > (2 * df["Average_Volume"])
+    # Calculate percentage price change
+    df["Price_Change_%"] = (
+        df["Close"].pct_change() * 100
+    )
 
-    # Price spike
-    df["Price_Spike"] = abs(df["Price_Change_%"]) > 5
+    # Calculate 20-minute average volume
+    df["Average_Volume"] = (
+        df["Volume"]
+        .rolling(window=20)
+        .mean()
+    )
 
-    # Final suspicious flag
-    df["Suspicious"] = df["Price_Spike"] & df["Volume_Spike"]
+    # Calculate volume ratio
+    df["Volume_Ratio"] = (
+        df["Volume"] /
+        df["Average_Volume"]
+    )
+
+    # Detect unusual volume
+    df["Volume_Spike"] = (
+        df["Volume_Ratio"] >= 2
+    )
+
+    # Detect unusual price movement
+    df["Price_Spike"] = (
+        abs(df["Price_Change_%"]) >= 1
+    )
+
+    # Final suspicious event
+    df["Suspicious"] = (
+        df["Price_Spike"] &
+        df["Volume_Spike"]
+    )
 
     return df
