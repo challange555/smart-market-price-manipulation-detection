@@ -5,35 +5,66 @@ def detect_price_and_volume(df):
 
     df = df.copy()
 
-    # Calculate percentage price change
+    # Make sure Close and Volume are numeric
+    df["Close"] = pd.to_numeric(
+        df["Close"],
+        errors="coerce"
+    )
+
+    df["Volume"] = pd.to_numeric(
+        df["Volume"],
+        errors="coerce"
+    )
+
+    # Minute-to-minute price change
     df["Price_Change_%"] = (
         df["Close"].pct_change() * 100
     )
 
-    # Calculate 20-minute average volume
-    df["Average_Volume"] = (
-        df["Volume"]
-        .rolling(window=20)
-        .mean()
+    # Replace zero volume with NaN only for
+    # calculating the normal volume baseline
+    volume_for_average = (
+        df["Volume"].replace(0, float("nan"))
     )
 
-    # Calculate volume ratio
+    # Previous 20-minute average volume
+    df["Average_Volume"] = (
+        volume_for_average
+        .rolling(
+            window=20,
+            min_periods=5
+        )
+        .mean()
+        .shift(1)
+    )
+
+    # Volume ratio
     df["Volume_Ratio"] = (
         df["Volume"] /
         df["Average_Volume"]
     )
 
-    # Detect unusual volume
+    # Clean invalid values
+    df["Volume_Ratio"] = (
+        df["Volume_Ratio"]
+        .replace(
+            [float("inf"), -float("inf")],
+            0
+        )
+        .fillna(0)
+    )
+
+    # Unusual volume
     df["Volume_Spike"] = (
-        df["Volume_Ratio"] >= 2
+        df["Volume_Ratio"] >= 1.2
     )
 
-    # Detect unusual price movement
+    # Unusual price movement
     df["Price_Spike"] = (
-        abs(df["Price_Change_%"]) >= 1
+        abs(df["Price_Change_%"]) >= 0.03
     )
 
-    # Final suspicious event
+    # Suspicious activity
     df["Suspicious"] = (
         df["Price_Spike"] &
         df["Volume_Spike"]

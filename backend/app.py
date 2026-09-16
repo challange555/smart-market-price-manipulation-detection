@@ -21,7 +21,7 @@ app = Flask(
 
 
 # ============================================================
-# LOGIN PAGE
+# LOGIN
 # ============================================================
 
 @app.route("/", methods=["GET", "POST"])
@@ -43,34 +43,17 @@ def dashboard():
 
 
 # ============================================================
-# AVAILABLE STOCKS
+# STOCK LIST
 # ============================================================
 
 @app.route("/stocks")
 def stocks():
 
-    # Stocks supported by Yahoo Finance
     stocks_list = [
-        "AAPL",
-        "MSFT",
-        "TSLA",
-        "AMZN",
-        "GOOGL",
-        "NVDA",
-        "NFLX",
-        "JPM",
-        "UBER",
-        "SPOT",
-        "META",
-        "AMD",
-        "INTC",
-        "ADBE",
-        "PYPL",
-        "CRM",
-        "ORCL",
-        "IBM",
-        "QCOM",
-        "AVGO"
+        "AAPL", "MSFT", "TSLA", "AMZN", "GOOGL",
+        "NVDA", "NFLX", "JPM", "UBER", "SPOT",
+        "META", "AMD", "INTC", "ADBE", "PYPL",
+        "CRM", "ORCL", "IBM", "QCOM", "AVGO"
     ]
 
     return jsonify(stocks_list)
@@ -85,54 +68,41 @@ def get_manipulation_reason(row):
     price_change = abs(row["Price_Change_%"])
     volume_ratio = row["Volume_Ratio"]
 
-    if price_change >= 3 and volume_ratio >= 5:
+    if price_change >= 0.50 and volume_ratio >= 3.0:
+        return "Extreme price movement + extreme trading volume"
 
-        return (
-            "Extreme price movement + "
-            "extreme trading volume"
-        )
+    elif price_change >= 0.20 and volume_ratio >= 2.0:
+        return "High price movement + abnormal trading volume"
 
-    elif price_change >= 2 and volume_ratio >= 3:
+    elif price_change >= 0.10 and volume_ratio >= 1.5:
+        return "Significant price movement + increased trading volume"
 
-        return (
-            "High price movement + "
-            "abnormal trading volume"
-        )
+    elif price_change >= 0.03 and volume_ratio >= 1.2:
+        return "Unusual price movement + volume spike"
 
-    elif price_change >= 1 and volume_ratio >= 2:
+    elif price_change >= 0.03:
+        return "Unusual price movement"
 
-        return (
-            "Significant price movement + "
-            "abnormal trading volume"
-        )
-
-    elif price_change >= 1:
-
-        return "Significant price movement"
-
-    elif volume_ratio >= 2:
-
-        return "Abnormal trading volume"
+    elif volume_ratio >= 1.2:
+        return "Unusual trading volume"
 
     return "Unusual market activity"
 
 
 # ============================================================
-# PERFORM LIVE MARKET ANALYSIS
+# PERFORM LIVE ANALYSIS
 # ============================================================
 
 def perform_analysis(stock):
 
-    # Get live 1-minute market data
     df = get_live_data(stock)
 
     if df.empty:
         return pd.DataFrame()
 
-    # Detect suspicious activity
     result = detect_price_and_volume(df)
 
-    # Calculate risk score
+    # Calculate risk score for every row
     risk_results = result.apply(
         calculate_risk_score,
         axis=1,
@@ -142,7 +112,6 @@ def perform_analysis(stock):
     result["Risk_Score"] = risk_results[0]
     result["Risk_Level"] = risk_results[1]
 
-    # Generate manipulation reason
     result["Manipulation_Reason"] = result.apply(
         get_manipulation_reason,
         axis=1
@@ -152,7 +121,7 @@ def perform_analysis(stock):
 
 
 # ============================================================
-# MARKET ANALYSIS API
+# ANALYZE API
 # ============================================================
 
 @app.route("/analyze")
@@ -168,18 +137,14 @@ def analyze():
         result = perform_analysis(stock)
 
         if result.empty:
-
             return jsonify({
                 "error": "No live market data available."
             }), 404
 
+        # Only suspicious events appear in the table
         suspicious = result[
-            result["Suspicious"]
+            result["Suspicious"] == True
         ].copy()
-
-        # ----------------------------------------------------
-        # Suspicious event data
-        # ----------------------------------------------------
 
         suspicious_data = suspicious[
             [
@@ -195,14 +160,10 @@ def analyze():
         ].copy()
 
         suspicious_data["Datetime"] = (
-            suspicious_data["Datetime"]
-            .astype(str)
+            suspicious_data["Datetime"].astype(str)
         )
 
-        # ----------------------------------------------------
         # Chart data
-        # ----------------------------------------------------
-
         chart_data = result[
             [
                 "Datetime",
@@ -213,55 +174,31 @@ def analyze():
         ].copy()
 
         chart_data["Datetime"] = (
-            chart_data["Datetime"]
-            .astype(str)
+            chart_data["Datetime"].astype(str)
         )
 
-        # ----------------------------------------------------
         # Summary
-        # ----------------------------------------------------
-
         total_records = len(result)
 
-        total_suspicious = len(
-            suspicious_data
-        )
+        total_suspicious = len(suspicious_data)
 
         high_risk = int(
-            (
-                suspicious_data["Risk_Level"]
-                == "High"
-            ).sum()
+            (result["Risk_Level"] == "High").sum()
         )
 
         medium_risk = int(
-            (
-                suspicious_data["Risk_Level"]
-                == "Medium"
-            ).sum()
+            (result["Risk_Level"] == "Medium").sum()
         )
 
         low_risk = int(
-            (
-                suspicious_data["Risk_Level"]
-                == "Low"
-            ).sum()
+            (result["Risk_Level"] == "Low").sum()
         )
 
-        max_risk = (
-            int(
-                suspicious_data[
-                    "Risk_Score"
-                ].max()
-            )
-            if not suspicious_data.empty
-            else 0
+        max_risk = int(
+            result["Risk_Score"].max()
         )
 
-        # ----------------------------------------------------
-        # Current market information
-        # ----------------------------------------------------
-
+        # Latest available row
         latest = result.iloc[-1]
 
         current_price = float(
@@ -316,7 +253,7 @@ def analyze():
 
 
 # ============================================================
-# DOWNLOAD LIVE ANALYSIS REPORT
+# DOWNLOAD REPORT
 # ============================================================
 
 @app.route("/download_report")
@@ -332,13 +269,12 @@ def download_report():
         result = perform_analysis(stock)
 
         if result.empty:
-
             return jsonify({
                 "error": "No live market data available."
             }), 404
 
         report = result[
-            result["Suspicious"]
+            result["Suspicious"] == True
         ].copy()
 
         report = report[
@@ -352,7 +288,7 @@ def download_report():
                 "Risk_Level",
                 "Manipulation_Reason"
             ]
-        ].copy()
+        ]
 
         report.rename(
             columns={
@@ -363,15 +299,13 @@ def download_report():
                 "Volume_Ratio": "Volume Ratio",
                 "Risk_Score": "Risk Score",
                 "Risk_Level": "Risk Level",
-                "Manipulation_Reason":
-                    "Manipulation Reason"
+                "Manipulation_Reason": "Manipulation Reason"
             },
             inplace=True
         )
 
         report["Date & Time"] = (
-            report["Date & Time"]
-            .astype(str)
+            report["Date & Time"].astype(str)
         )
 
         output = io.StringIO()
@@ -389,9 +323,7 @@ def download_report():
             csv_data,
             mimetype="text/csv",
             as_attachment=True,
-            download_name=(
-                f"{stock}_live_manipulation_report.csv"
-            )
+            download_name=f"{stock}_live_manipulation_report.csv"
         )
 
     except Exception as e:
@@ -402,7 +334,7 @@ def download_report():
 
 
 # ============================================================
-# RUN APPLICATION
+# RUN SERVER
 # ============================================================
 
 if __name__ == "__main__":
