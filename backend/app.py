@@ -9,7 +9,8 @@ from flask import (
     request,
     send_file,
     redirect,
-    url_for
+    url_for,
+    session
 )
 
 from backend.live_data import get_live_data
@@ -26,6 +27,21 @@ app = Flask(
     template_folder="../frontend/templates"
 )
 
+# Secret key for login sessions
+app.secret_key = "smart-market-surveillance-secret-key"
+
+
+# ============================================================
+# LOGIN REQUIRED FUNCTION
+# ============================================================
+
+def login_required():
+
+    if not session.get("logged_in"):
+        return False
+
+    return True
+
 
 # ============================================================
 # HOME PAGE
@@ -33,6 +49,7 @@ app = Flask(
 
 @app.route("/")
 def home():
+
     return render_template("home.html")
 
 
@@ -43,10 +60,55 @@ def home():
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
-    if request.method == "POST":
+    # Already logged in
+    if session.get("logged_in"):
         return redirect(url_for("dashboard"))
 
+    if request.method == "POST":
+
+        username = request.form.get(
+            "username",
+            ""
+        ).strip()
+
+        password = request.form.get(
+            "password",
+            ""
+        )
+
+        # ----------------------------------------------------
+        # LOGIN DETAILS
+        # ----------------------------------------------------
+
+        if username == "admin" and password == "admin123":
+
+            session["logged_in"] = True
+            session["username"] = username
+
+            return redirect(
+                url_for("dashboard")
+            )
+
+        return render_template(
+            "login.html",
+            error="Invalid username or password."
+        )
+
     return render_template("login.html")
+
+
+# ============================================================
+# LOGOUT
+# ============================================================
+
+@app.route("/logout")
+def logout():
+
+    session.clear()
+
+    return redirect(
+        url_for("login")
+    )
 
 
 # ============================================================
@@ -56,7 +118,15 @@ def login():
 @app.route("/dashboard")
 @app.route("/analysis")
 def dashboard():
-    return render_template("dashboard.html")
+
+    if not login_required():
+        return redirect(
+            url_for("login")
+        )
+
+    return render_template(
+        "dashboard.html"
+    )
 
 
 # ============================================================
@@ -65,7 +135,15 @@ def dashboard():
 
 @app.route("/risk")
 def risk():
-    return render_template("risk.html")
+
+    if not login_required():
+        return redirect(
+            url_for("login")
+        )
+
+    return render_template(
+        "risk.html"
+    )
 
 
 # ============================================================
@@ -74,7 +152,15 @@ def risk():
 
 @app.route("/reports")
 def reports():
-    return render_template("reports.html")
+
+    if not login_required():
+        return redirect(
+            url_for("login")
+        )
+
+    return render_template(
+        "reports.html"
+    )
 
 
 # ============================================================
@@ -83,7 +169,15 @@ def reports():
 
 @app.route("/about")
 def about():
-    return render_template("about.html")
+
+    if not login_required():
+        return redirect(
+            url_for("login")
+        )
+
+    return render_template(
+        "about.html"
+    )
 
 
 # ============================================================
@@ -92,7 +186,15 @@ def about():
 
 @app.route("/project")
 def project():
-    return render_template("project.html")
+
+    if not login_required():
+        return redirect(
+            url_for("login")
+        )
+
+    return render_template(
+        "project.html"
+    )
 
 
 # ============================================================
@@ -101,6 +203,11 @@ def project():
 
 @app.route("/stocks")
 def stocks():
+
+    if not login_required():
+        return jsonify({
+            "error": "Login required."
+        }), 401
 
     stocks_folder = os.path.join(
         os.path.dirname(
@@ -113,23 +220,24 @@ def stocks():
         "stocks"
     )
 
-    # If stock folder does not exist
     if not os.path.exists(stocks_folder):
         return jsonify([])
 
     stocks_list = []
 
-    # Read every CSV file in the stocks folder
     for file in os.listdir(stocks_folder):
 
         if file.lower().endswith(".csv"):
 
-            ticker = os.path.splitext(file)[0].upper()
+            ticker = os.path.splitext(
+                file
+            )[0].upper()
 
             stocks_list.append(ticker)
 
-    # Remove duplicates and sort alphabetically
-    stocks_list = sorted(set(stocks_list))
+    stocks_list = sorted(
+        set(stocks_list)
+    )
 
     return jsonify(stocks_list)
 
@@ -140,31 +248,48 @@ def stocks():
 
 def get_manipulation_reason(row):
 
-    price_change = abs(row["Price_Change_%"])
-    volume_ratio = row["Volume_Ratio"]
+    price_change = abs(
+        row["Price_Change_%"]
+    )
 
-    if price_change >= 0.50 and volume_ratio >= 3.0:
+    volume_ratio = row[
+        "Volume_Ratio"
+    ]
+
+    if (
+        price_change >= 0.50
+        and volume_ratio >= 3.0
+    ):
 
         return (
             "Extreme price movement + "
             "extreme trading volume"
         )
 
-    elif price_change >= 0.20 and volume_ratio >= 2.0:
+    elif (
+        price_change >= 0.20
+        and volume_ratio >= 2.0
+    ):
 
         return (
             "High price movement + "
             "abnormal trading volume"
         )
 
-    elif price_change >= 0.10 and volume_ratio >= 1.5:
+    elif (
+        price_change >= 0.10
+        and volume_ratio >= 1.5
+    ):
 
         return (
             "Significant price movement + "
             "increased trading volume"
         )
 
-    elif price_change >= 0.03 and volume_ratio >= 1.2:
+    elif (
+        price_change >= 0.03
+        and volume_ratio >= 1.2
+    ):
 
         return (
             "Unusual price movement + "
@@ -188,29 +313,32 @@ def get_manipulation_reason(row):
 
 def perform_analysis(stock):
 
-    # Get current intraday market data
     df = get_live_data(stock)
 
     if df.empty:
         return pd.DataFrame()
 
-    # Detect unusual price and volume activity
     result = detect_price_and_volume(df)
 
-    # Calculate risk score and risk level
     risk_results = result.apply(
         calculate_risk_score,
         axis=1,
         result_type="expand"
     )
 
-    result["Risk_Score"] = risk_results[0]
-    result["Risk_Level"] = risk_results[1]
+    result["Risk_Score"] = (
+        risk_results[0]
+    )
 
-    # Add explanation for suspicious activity
-    result["Manipulation_Reason"] = result.apply(
-        get_manipulation_reason,
-        axis=1
+    result["Risk_Level"] = (
+        risk_results[1]
+    )
+
+    result["Manipulation_Reason"] = (
+        result.apply(
+            get_manipulation_reason,
+            axis=1
+        )
     )
 
     return result
@@ -223,6 +351,11 @@ def perform_analysis(stock):
 @app.route("/analyze")
 def analyze():
 
+    if not login_required():
+        return jsonify({
+            "error": "Login required."
+        }), 401
+
     try:
 
         stock = request.args.get(
@@ -230,18 +363,16 @@ def analyze():
             "AAPL"
         ).upper().strip()
 
-        # Get market analysis
-        result = perform_analysis(stock)
+        result = perform_analysis(
+            stock
+        )
 
         if result.empty:
 
             return jsonify({
-                "error": "No market data available."
+                "error":
+                    "No market data available."
             }), 404
-
-        # ----------------------------------------------------
-        # Suspicious events
-        # ----------------------------------------------------
 
         suspicious = result[
             result["Suspicious"] == True
@@ -260,14 +391,11 @@ def analyze():
             ]
         ].copy()
 
-        suspicious_data["Datetime"] = (
-            suspicious_data["Datetime"]
-            .astype(str)
-        )
-
-        # ----------------------------------------------------
-        # Chart data
-        # ----------------------------------------------------
+        suspicious_data[
+            "Datetime"
+        ] = suspicious_data[
+            "Datetime"
+        ].astype(str)
 
         chart_data = result[
             [
@@ -278,16 +406,15 @@ def analyze():
             ]
         ].copy()
 
-        chart_data["Datetime"] = (
-            chart_data["Datetime"]
-            .astype(str)
+        chart_data[
+            "Datetime"
+        ] = chart_data[
+            "Datetime"
+        ].astype(str)
+
+        total_records = len(
+            result
         )
-
-        # ----------------------------------------------------
-        # Summary
-        # ----------------------------------------------------
-
-        total_records = len(result)
 
         total_suspicious = len(
             suspicious_data
@@ -295,29 +422,28 @@ def analyze():
 
         high_risk = int(
             (
-                result["Risk_Level"] == "High"
+                result["Risk_Level"]
+                == "High"
             ).sum()
         )
 
         medium_risk = int(
             (
-                result["Risk_Level"] == "Medium"
+                result["Risk_Level"]
+                == "Medium"
             ).sum()
         )
 
         low_risk = int(
             (
-                result["Risk_Level"] == "Low"
+                result["Risk_Level"]
+                == "Low"
             ).sum()
         )
 
         max_risk = int(
             result["Risk_Score"].max()
         )
-
-        # ----------------------------------------------------
-        # Latest market information
-        # ----------------------------------------------------
 
         latest = result.iloc[-1]
 
@@ -333,40 +459,46 @@ def analyze():
             latest["Price_Change_%"]
         )
 
-        # ----------------------------------------------------
-        # Return JSON response
-        # ----------------------------------------------------
-
         return jsonify({
 
             "stock": stock,
 
-            "total_records": total_records,
+            "total_records":
+                total_records,
 
-            "total_suspicious": total_suspicious,
+            "total_suspicious":
+                total_suspicious,
 
-            "high_risk": high_risk,
+            "high_risk":
+                high_risk,
 
-            "medium_risk": medium_risk,
+            "medium_risk":
+                medium_risk,
 
-            "low_risk": low_risk,
+            "low_risk":
+                low_risk,
 
-            "max_risk": max_risk,
+            "max_risk":
+                max_risk,
 
-            "current_price": current_price,
+            "current_price":
+                current_price,
 
-            "current_volume": current_volume,
+            "current_volume":
+                current_volume,
 
-            "current_change": current_change,
+            "current_change":
+                current_change,
 
-            "data": suspicious_data.to_dict(
-                orient="records"
-            ),
+            "data":
+                suspicious_data.to_dict(
+                    orient="records"
+                ),
 
-            "chart_data": chart_data.to_dict(
-                orient="records"
-            )
-
+            "chart_data":
+                chart_data.to_dict(
+                    orient="records"
+                )
         })
 
     except Exception as e:
@@ -383,6 +515,11 @@ def analyze():
 @app.route("/download_report")
 def download_report():
 
+    if not login_required():
+        return jsonify({
+            "error": "Login required."
+        }), 401
+
     try:
 
         stock = request.args.get(
@@ -390,16 +527,17 @@ def download_report():
             "AAPL"
         ).upper().strip()
 
-        # Get current market analysis
-        result = perform_analysis(stock)
+        result = perform_analysis(
+            stock
+        )
 
         if result.empty:
 
             return jsonify({
-                "error": "No market data available."
+                "error":
+                    "No market data available."
             }), 404
 
-        # Only suspicious events
         report = result[
             result["Suspicious"] == True
         ].copy()
@@ -417,7 +555,6 @@ def download_report():
             ]
         ]
 
-        # Rename columns for report
         report.rename(
             columns={
 
@@ -449,12 +586,12 @@ def download_report():
             inplace=True
         )
 
-        report["Date & Time"] = (
-            report["Date & Time"]
-            .astype(str)
-        )
+        report[
+            "Date & Time"
+        ] = report[
+            "Date & Time"
+        ].astype(str)
 
-        # Create CSV in memory
         output = io.StringIO()
 
         report.to_csv(
@@ -468,7 +605,6 @@ def download_report():
             .encode("utf-8")
         )
 
-        # Send CSV file to user
         return send_file(
 
             csv_data,
@@ -506,7 +642,8 @@ def page_not_found(error):
 def internal_server_error(error):
 
     return jsonify({
-        "error": "Internal server error."
+        "error":
+            "Internal server error."
     }), 500
 
 
