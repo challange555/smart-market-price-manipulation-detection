@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Market Surveillance</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #17213b;
+            background: #ffffff;
+        }
+
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        nav {
+            height: 78px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            border-bottom: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #17213b;
+        }
+
+        .logo span {
+            color: #2864e6;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #17213b;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .nav-links a:hover {
+            color: #2864e6;
+        }
+
+        .open-system {
+            background: #2864e6;
+            color: white !important;
+            padding: 13px 24px;
+            border-radius: 9px;
+        }
+
+        .open-system:hover {
+            background: #1f55c8;
+        }
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero {
+            min-height: calc(100vh - 78px);
+            background: linear-gradient(
+                135deg,
+                #f5f8ff 0%,
+                #ffffff 100%
+            );
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 70px 7%;
+            gap: 60px;
+        }
+
+        .hero-left {
+            width: 52%;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #e1ecff;
+            color: #2864e6;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 9px 17px;
+            border-radius: 25px;
+            margin-bottom: 25px;
+        }
+
+        .hero-left h1 {
+            font-size: 54px;
+            line-height: 1.08;
+            margin-bottom: 28px;
+            letter-spacing: -1.5px;
+        }
+
+        .hero-left h1 span {
+            color: #2864e6;
+        }
+
+        .hero-left p {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #60708d;
+            max-width: 700px;
+            margin-bottom: 35px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .primary-btn,
+        .secondary-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 15px 27px;
+            border-radius: 8px;
+
+            font-size: 16px;
+            font-weight: 700;
+
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+        }
+
+        .primary-btn {
+            background: #2864e6;
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background: #1f55c8;
+        }
+
+        .secondary-btn {
+            background: white;
+            color: #2864e6;
+            border: 1px solid #cbd5e1;
+        }
+
+        .secondary-btn:hover {
+            background: #f3f6ff;
+        }
+
+        /* =========================
+           SURVEILLANCE CARD
+        ========================= */
+
+        .hero-right {
+            width: 42%;
+        }
+
+        .dashboard-card {
+            background: white;
+            border: 1px solid #e1e6ef;
+            border-radius: 18px;
+            padding: 28px;
+
+            box-shadow: 0 20px 45px rgba(20, 40, 80, 0.12);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 28px;
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+        }
+
+        .status {
+            color: #12a150;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .status::before {
+            content: "●";
+            margin-right: 5px;
+        }
+
+        /* =========================
+           STAT CARDS
+        ========================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat {
+            background: #f7f9fc;
+            padding: 22px;
+            border-radius: 12px;
+        }
+
+        .stat-label {
+            color: #687792;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 23px;
+            font-weight: 700;
+            color: #17213b;
+        }
+
+        /* =========================
+           RISK BOX
+        ========================= */
+
+        .risk-box {
+            margin-top: 18px;
+            border: 1px solid #ffd19b;
+            background: #fff8ef;
+            border-radius: 12px;
+            padding: 22px;
+        }
+
+        .risk-title {
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .risk-level {
+            font-size: 18px;
+            font-weight: 700;
+            color: #e85b00;
+            margin-bottom: 12px;
+        }
+
+        .risk-description {
+            color: #60708d;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1000px) {
+
+            .hero {
+                flex-direction: column;
+                padding: 60px 6%;
+            }
+
+            .hero-left,
+            .hero-right {
+                width: 100%;
+            }
+
+            .hero-left h1 {
+                font-size: 44px;
+            }
+
+            .nav-links {
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            nav {
+                height: auto;
+                padding: 20px;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .hero {
+                padding: 45px 20px;
+            }
+
+            .hero-left h1 {
+                font-size: 38px;
+            }
+
+            .hero-left p {
+                font-size: 16px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .primary-btn,
+            .secondary-btn {
+                width: 100%;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <!-- =========================
+         NAVIGATION BAR
+    ========================= -->
+
+    <nav>
+
+        <div class="logo">
+            Smart<span>Market</span>
+        </div>
+
+        <div class="nav-links">
+
+            <a href="/">Home</a>
+
+            <a href="/dashboard">
+                Market Analysis
+            </a>
+
+            <a href="/risk">
+                Risk Detection
+            </a>
+
+            <a href="/reports">
+                Reports
+            </a>
+
+            <a href="/about">
+                About
+            </a>
+
+            <a href="/dashboard" class="open-system">
+                Open System
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         HERO SECTION
+    ========================= -->
+
+    <section class="hero">
+
+        <div class="hero-left">
+
+            <div class="badge">
+                MARKET SURVEILLANCE &amp; RISK ANALYTICS
+            </div>
+
+            <h1>
+                Smart Detection of
+                <span>Market Price Manipulation</span>
+            </h1>
+
+            <p>
+                An intelligent market surveillance system designed
+                to identify unusual price movements and abnormal
+                trading-volume patterns using data-driven analysis
+                and automated risk scoring.
+            </p>
+
+
+            <div class="buttons">
+
+                <!-- WORKING BUTTON -->
+                <a href="/dashboard" class="primary-btn">
+                    Start Market Analysis
+                </a>
+
+
+                <!-- FIXED BUTTON -->
+                <a href="/about" class="secondary-btn">
+                    Learn About System
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             MARKET SURVEILLANCE CARD
+        ========================= -->
+
+        <div class="hero-right">
+
+            <div class="dashboard-card">
+
+                <div class="card-header">
+
+                    <h2>
+                        Market Surveillance
+                    </h2>
+
+                    <div class="status">
+                        SYSTEM ACTIVE
+                    </div>
+
+                </div>
+
+
+                <div class="stats">
+
+                    <div class="stat">
+
+                        <div class="stat-label">
+                            Current Price
+                        </div>
+
+                        <div class="stat-value">
+                            $329.49
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <div class="stat-label">
+                            Price Change
+                        </div>
+
+                        <div class="stat-value">
+                            +0.25%
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <div class="stat-label">
+                            Suspicious Events
+                        </div>
+
+                        <div class="stat-value">
+                            12
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <div class="stat-label">
+                            Maximum Risk
+                        </div>
+
+                        <div class="stat-value">
+                            60/100
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CURRENT RISK STATUS -->
+
+                <div class="risk-box">
+
+                    <div class="risk-title">
+                        CURRENT RISK STATUS
+                    </div>
+
+                    <div class="risk-level">
+                        Medium Risk
+                    </div>
+
+                    <div class="risk-description">
+                        Unusual price and volume activity detected
+                        during market monitoring.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</body>
+
+</html>

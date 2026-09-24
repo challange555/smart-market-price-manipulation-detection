@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reports | Smart Market Detection</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fb;
+            color: #17213b;
+        }
+
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        nav {
+            height: 78px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 7%;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: #2864e6;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #17213b;
+            font-weight: 600;
+        }
+
+        .nav-links a:hover {
+            color: #2864e6;
+        }
+
+        .open-system {
+            background: #2864e6;
+            color: white !important;
+            padding: 13px 22px;
+            border-radius: 8px;
+        }
+
+        /* =========================
+           PAGE HEADER
+        ========================= */
+
+        .hero {
+            background: linear-gradient(
+                135deg,
+                #eef4ff,
+                #ffffff
+            );
+
+            text-align: center;
+            padding: 55px 20px;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        .hero h1 span {
+            color: #2864e6;
+        }
+
+        .hero p {
+            color: #60708d;
+            font-size: 17px;
+        }
+
+        /* =========================
+           CONTAINER
+        ========================= */
+
+        .container {
+            width: 86%;
+            max-width: 1200px;
+            margin: 35px auto;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 25px;
+
+            box-shadow: 0 8px 25px rgba(20, 40, 80, 0.06);
+        }
+
+        .panel h2 {
+            margin-bottom: 20px;
+        }
+
+        /* =========================
+           SEARCH
+        ========================= */
+
+        .search-box {
+            position: relative;
+        }
+
+        #companySearch {
+            width: 100%;
+            padding: 16px 18px;
+
+            border: 1px solid #d5dbe5;
+            border-radius: 10px;
+
+            font-size: 16px;
+            outline: none;
+        }
+
+        #companySearch:focus {
+            border-color: #2864e6;
+        }
+
+        .search-results {
+            margin-top: 8px;
+            border: 1px solid #e1e6ef;
+            border-radius: 10px;
+            background: white;
+
+            max-height: 240px;
+            overflow-y: auto;
+
+            display: none;
+        }
+
+        .search-result {
+            padding: 14px 17px;
+            cursor: pointer;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .search-result:hover {
+            background: #f2f6ff;
+        }
+
+        .selected-stock {
+            margin-top: 15px;
+            color: #2864e6;
+            font-weight: 700;
+        }
+
+        /* =========================
+           BUTTONS
+        ========================= */
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        button {
+            border: none;
+            padding: 14px 22px;
+            border-radius: 8px;
+
+            font-size: 15px;
+            font-weight: 700;
+
+            cursor: pointer;
+        }
+
+        .generate-btn {
+            background: #2864e6;
+            color: white;
+        }
+
+        .generate-btn:hover {
+            background: #1f55c8;
+        }
+
+        .download-btn {
+            background: #16a34a;
+            color: white;
+        }
+
+        .download-btn:hover {
+            background: #12843c;
+        }
+
+        .message {
+            margin-top: 15px;
+            color: #60708d;
+        }
+
+        /* =========================
+           SUMMARY CARDS
+        ========================= */
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+
+            box-shadow: 0 8px 25px rgba(20, 40, 80, 0.06);
+        }
+
+        .summary-label {
+            color: #687792;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .summary-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        /* =========================
+           MARKET INFORMATION
+        ========================= */
+
+        .market-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .market-table th,
+        .market-table td {
+            text-align: left;
+            padding: 16px;
+
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .market-table th {
+            width: 50%;
+            background: #f8fafc;
+        }
+
+        .usd {
+            color: #2864e6;
+            font-weight: 600;
+            font-size: 13px;
+            margin-left: 5px;
+        }
+
+        .positive {
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        .negative {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        /* =========================
+           REPORT TABLE
+        ========================= */
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        .report-table th,
+        .report-table td {
+            padding: 13px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .report-table th {
+            background: #f1f5f9;
+            font-size: 14px;
+        }
+
+        .report-table td {
+            font-size: 14px;
+        }
+
+        .risk-high {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .risk-medium {
+            color: #ea580c;
+            font-weight: 700;
+        }
+
+        .risk-low {
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        /* =========================
+           EMPTY MESSAGE
+        ========================= */
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #687792;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+
+            background: white;
+            border-top: 1px solid #e5e7eb;
+
+            color: #687792;
+            font-size: 14px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 900px) {
+
+            .summary {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .nav-links {
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 650px) {
+
+            nav {
+                height: auto;
+                padding: 20px;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .container {
+                width: 92%;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     NAVIGATION
+========================= -->
+
+<nav>
+
+    <div class="logo">
+        Smart<span>Market</span>
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/">Home</a>
+
+        <a href="/dashboard">
+            Market Analysis
+        </a>
+
+        <a href="/risk">
+            Risk Detection
+        </a>
+
+        <a href="/reports">
+            Reports
+        </a>
+
+        <a href="/about">
+            About
+        </a>
+
+        <a href="/dashboard" class="open-system">
+            Open System
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- =========================
+     HEADER
+========================= -->
+
+<section class="hero">
+
+    <h1>
+        Market <span>Reports</span>
+    </h1>
+
+    <p>
+        Generate live intraday market surveillance reports
+        for the selected stock.
+    </p>
+
+</section>
+
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<div class="container">
+
+
+    <!-- SEARCH PANEL -->
+
+    <div class="panel">
+
+        <h2>
+            Select Company
+        </h2>
+
+        <div class="search-box">
+
+            <input
+                type="text"
+                id="companySearch"
+                placeholder="Search company or ticker... e.g. Apple, AAPL"
+                autocomplete="off"
+            >
+
+            <div
+                id="searchResults"
+                class="search-results">
+            </div>
+
+        </div>
+
+
+        <div
+            id="selectedStock"
+            class="selected-stock">
+            No stock selected
+        </div>
+
+
+        <div class="buttons">
+
+            <button
+                class="generate-btn"
+                onclick="generateReport()">
+
+                Generate Live Report
+
+            </button>
+
+
+            <button
+                class="download-btn"
+                onclick="downloadReport()">
+
+                Download CSV Report
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="message"
+            class="message">
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <div
+        id="summarySection"
+        style="display:none;">
+
+        <div class="summary">
+
+
+            <div class="summary-card">
+
+                <div class="summary-label">
+                    Total Records
+                </div>
+
+                <div
+                    class="summary-value"
+                    id="totalRecords">
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-label">
+                    Suspicious Events
+                </div>
+
+                <div
+                    class="summary-value"
+                    id="suspiciousEvents">
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-label">
+                    High Risk Events
+                </div>
+
+                <div
+                    class="summary-value"
+                    id="highRiskEvents">
+                    -
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-label">
+                    Maximum Risk Score
+                </div>
+
+                <div
+                    class="summary-value"
+                    id="maximumRisk">
+                    -
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             CURRENT MARKET INFORMATION
+        ========================= -->
+
+        <div class="panel">
+
+            <h2>
+                Current Market Information
+            </h2>
+
+            <table class="market-table">
+
+                <tr>
+
+                    <th>
+                        Stock
+                    </th>
+
+                    <td id="marketStock">
+                        -
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <th>
+                        Current Price
+                    </th>
+
+                    <td>
+
+                        <span id="currentPrice">
+                            -
+                        </span>
+
+                        <span class="usd">
+                            USD
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <th>
+                        Current Volume
+                    </th>
+
+                    <td id="currentVolume">
+                        -
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <th>
+                        Latest Price Change
+                    </th>
+
+                    <td id="currentChange">
+                        -
+                    </td>
+
+                </tr>
+
+            </table>
+
+        </div>
+
+
+        <!-- =========================
+             SUSPICIOUS EVENTS
+        ========================= -->
+
+        <div class="panel">
+
+            <h2>
+                Suspicious Market Events
+            </h2>
+
+            <div class="table-container">
+
+                <table class="report-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Date & Time
+                            </th>
+
+                            <th>
+                                Close Price (USD)
+                            </th>
+
+                            <th>
+                                Volume
+                            </th>
+
+                            <th>
+                                Price Change %
+                            </th>
+
+                            <th>
+                                Volume Ratio
+                            </th>
+
+                            <th>
+                                Risk Score
+                            </th>
+
+                            <th>
+                                Risk Level
+                            </th>
+
+                            <th>
+                                Reason
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="reportBody">
+
+                        <tr>
+
+                            <td
+                                colspan="8"
+                                class="empty">
+
+                                Generate a report to view
+                                suspicious events.
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         REPORT INFORMATION
+    ========================= -->
+
+    <div class="panel">
+
+        <h2>
+            Report Contents
+        </h2>
+
+        <p style="color:#60708d; line-height:1.8;">
+
+            The generated report contains detected unusual
+            market activity, price movement, trading volume,
+            volume ratio, risk score, risk level and the
+            reason for the detected event.
+
+        </p>
+
+        <br>
+
+        <p style="color:#60708d; line-height:1.8;">
+
+            Stock prices for U.S.-listed securities such as
+            Apple (AAPL) are displayed in
+            <strong>USD (US Dollars)</strong>.
+
+        </p>
+
+    </div>
+
+
+</div>
+
+
+<!-- FOOTER -->
+
+<footer>
+
+    Smart Market Price Manipulation Detection System
+    <br><br>
+    Final Year Data Science &amp; Analytics Project
+
+</footer>
+
+
+<script>
+
+    /* =========================
+       VARIABLES
+    ========================= */
+
+    let stocks = [];
+
+    let selectedStock = "";
+
+
+    /* =========================
+       COMPANY NAMES
+    ========================= */
+
+    const companyAliases = {
+
+        AAPL: "Apple",
+        MSFT: "Microsoft",
+        TSLA: "Tesla",
+        AMZN: "Amazon",
+        GOOGL: "Google",
+        GOOG: "Alphabet",
+        META: "Meta",
+        NVDA: "NVIDIA",
+        NFLX: "Netflix",
+        JPM: "JPMorgan Chase",
+        UBER: "Uber",
+        SPOT: "Spotify",
+        AMD: "AMD",
+        INTC: "Intel",
+        ADBE: "Adobe",
+        PYPL: "PayPal",
+        CRM: "Salesforce",
+        ORCL: "Oracle",
+        IBM: "IBM",
+        QCOM: "Qualcomm",
+        AVGO: "Broadcom",
+        NKE: "Nike",
+        SBUX: "Starbucks",
+        WMT: "Walmart",
+        V: "Visa",
+        MA: "Mastercard",
+        BAC: "Bank of America",
+        GS: "Goldman Sachs",
+        MS: "Morgan Stanley",
+        XOM: "Exxon Mobil",
+        CVX: "Chevron"
+
+    };
+
+
+    /* =========================
+       LOAD STOCKS
+    ========================= */
+
+    async function loadStocks() {
+
+        try {
+
+            const response =
+                await fetch("/stocks");
+
+            stocks = await response.json();
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+        }
+
+    }
+
+
+    /* =========================
+       SEARCH
+    ========================= */
+
+    const searchInput =
+        document.getElementById("companySearch");
+
+    const searchResults =
+        document.getElementById("searchResults");
+
+
+    searchInput.addEventListener(
+        "input",
+        function () {
+
+            const query =
+                this.value
+                    .trim()
+                    .toLowerCase();
+
+            searchResults.innerHTML = "";
+
+            if (!query) {
+
+                searchResults.style.display =
+                    "none";
+
+                return;
+
+            }
+
+
+            const matches =
+                stocks.filter(function (ticker) {
+
+                    const company =
+                        companyAliases[ticker] || "";
+
+                    return (
+
+                        ticker
+                            .toLowerCase()
+                            .includes(query)
+
+                        ||
+
+                        company
+                            .toLowerCase()
+                            .includes(query)
+
+                    );
+
+                }).slice(0, 20);
+
+
+            if (matches.length === 0) {
+
+                searchResults.innerHTML =
+                    `<div class="search-result">
+                        No matching company found
+                    </div>`;
+
+                searchResults.style.display =
+                    "block";
+
+                return;
+
+            }
+
+
+            matches.forEach(function (ticker) {
+
+                const company =
+                    companyAliases[ticker] || ticker;
+
+
+                const item =
+                    document.createElement("div");
+
+                item.className =
+                    "search-result";
+
+                item.textContent =
+                    `${company} (${ticker})`;
+
+
+                item.onclick =
+                    function () {
+
+                        selectStock(ticker);
+
+                    };
+
+
+                searchResults.appendChild(item);
+
+            });
+
+
+            searchResults.style.display =
+                "block";
+
+        }
+    );
+
+
+    /* =========================
+       SELECT STOCK
+    ========================= */
+
+    function selectStock(ticker) {
+
+        selectedStock =
+            ticker.toUpperCase();
+
+
+        const company =
+            companyAliases[selectedStock]
+            || selectedStock;
+
+
+        searchInput.value =
+            `${company} (${selectedStock})`;
+
+
+        document.getElementById(
+            "selectedStock"
+        ).textContent =
+            `Selected: ${company} (${selectedStock})`;
+
+
+        searchResults.style.display =
+            "none";
+
+    }
+
+
+    /* =========================
+       GENERATE REPORT
+    ========================= */
+
+    async function generateReport() {
+
+        if (!selectedStock) {
+
+            document.getElementById(
+                "message"
+            ).textContent =
+                "Please select a company first.";
+
+            return;
+
+        }
+
+
+        const message =
+            document.getElementById("message");
+
+
+        message.textContent =
+            `Generating live report for ${selectedStock}...`;
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `/analyze?stock=${selectedStock}`
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Unable to generate report."
+                );
+
+            }
+
+
+            /* =========================
+               SUMMARY
+            ========================= */
+
+            document.getElementById(
+                "summarySection"
+            ).style.display =
+                "block";
+
+
+            document.getElementById(
+                "totalRecords"
+            ).textContent =
+                data.total_records;
+
+
+            document.getElementById(
+                "suspiciousEvents"
+            ).textContent =
+                data.total_suspicious;
+
+
+            document.getElementById(
+                "highRiskEvents"
+            ).textContent =
+                data.high_risk;
+
+
+            document.getElementById(
+                "maximumRisk"
+            ).textContent =
+                data.max_risk;
+
+
+            /* =========================
+               CURRENT MARKET
+            ========================= */
+
+            const company =
+                companyAliases[selectedStock]
+                || selectedStock;
+
+
+            document.getElementById(
+                "marketStock"
+            ).textContent =
+                `${company} (${selectedStock})`;
+
+
+            document.getElementById(
+                "currentPrice"
+            ).textContent =
+                Number(
+                    data.current_price
+                ).toFixed(2);
+
+
+            document.getElementById(
+                "currentVolume"
+            ).textContent =
+                Number(
+                    data.current_volume
+                ).toLocaleString();
+
+
+            const change =
+                Number(
+                    data.current_change
+                );
+
+
+            const changeElement =
+                document.getElementById(
+                    "currentChange"
+                );
+
+
+            changeElement.textContent =
+                `${change >= 0 ? "+" : ""}${change.toFixed(4)}%`;
+
+
+            changeElement.className =
+                change >= 0
+                    ? "positive"
+                    : "negative";
+
+
+            /* =========================
+               SUSPICIOUS EVENTS
+            ========================= */
+
+            const body =
+                document.getElementById(
+                    "reportBody"
+                );
+
+
+            body.innerHTML = "";
+
+
+            if (
+                !data.data ||
+                data.data.length === 0
+            ) {
+
+                body.innerHTML =
+                    `<tr>
+                        <td colspan="8" class="empty">
+                            No suspicious events detected.
+                        </td>
+                    </tr>`;
+
+            }
+
+            else {
+
+                data.data.forEach(function (row) {
+
+                    const tr =
+                        document.createElement("tr");
+
+
+                    let riskClass =
+                        "risk-low";
+
+
+                    if (
+                        row.Risk_Level === "High"
+                    ) {
+
+                        riskClass =
+                            "risk-high";
+
+                    }
+
+                    else if (
+                        row.Risk_Level === "Medium"
+                    ) {
+
+                        riskClass =
+                            "risk-medium";
+
+                    }
+
+
+                    tr.innerHTML = `
+
+                        <td>
+                            ${row.Datetime}
+                        </td>
+
+                        <td>
+                            $${Number(
+                                row.Close
+                            ).toFixed(2)}
+                        </td>
+
+                        <td>
+                            ${Number(
+                                row.Volume
+                            ).toLocaleString()}
+                        </td>
+
+                        <td>
+                            ${Number(
+                                row["Price_Change_%"]
+                            ).toFixed(4)}%
+                        </td>
+
+                        <td>
+                            ${Number(
+                                row.Volume_Ratio
+                            ).toFixed(2)}x
+                        </td>
+
+                        <td>
+                            ${row.Risk_Score}/100
+                        </td>
+
+                        <td class="${riskClass}">
+                            ${row.Risk_Level}
+                        </td>
+
+                        <td>
+                            ${row.Manipulation_Reason}
+                        </td>
+
+                    `;
+
+
+                    body.appendChild(tr);
+
+                });
+
+            }
+
+
+            message.textContent =
+                `Live report generated successfully for ${selectedStock}.`;
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            message.textContent =
+                `Error: ${error.message}`;
+
+        }
+
+    }
+
+
+    /* =========================
+       DOWNLOAD REPORT
+    ========================= */
+
+    function downloadReport() {
+
+        if (!selectedStock) {
+
+            document.getElementById(
+                "message"
+            ).textContent =
+                "Please select a company first.";
+
+            return;
+
+        }
+
+
+        window.location.href =
+            `/download_report?stock=${selectedStock}`;
+
+    }
+
+
+    /* =========================
+       INITIALIZE
+    ========================= */
+
+    loadStocks();
+
+</script>
+
+
+</body>
+
+</html>

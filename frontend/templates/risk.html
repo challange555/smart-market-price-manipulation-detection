@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Risk Detection | SmartMarket</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #172033;
+        }
+
+        /* NAVBAR */
+
+        .navbar {
+            height: 72px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 21px;
+            font-weight: 700;
+            color: #172554;
+        }
+
+        .logo span {
+            color: #2563eb;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #475569;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .nav-links a:hover {
+            color: #2563eb;
+        }
+
+        .nav-button {
+            background: #2563eb;
+            color: white !important;
+            padding: 10px 18px;
+            border-radius: 7px;
+        }
+
+        /* HEADER */
+
+        .page-header {
+            background: #0f172a;
+            color: white;
+            padding: 65px 7%;
+        }
+
+        .page-header small {
+            color: #60a5fa;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .page-header h1 {
+            margin-top: 12px;
+            font-size: 38px;
+        }
+
+        .page-header p {
+            margin-top: 15px;
+            max-width: 720px;
+            color: #cbd5e1;
+            line-height: 1.7;
+        }
+
+        /* CONTENT */
+
+        .container {
+            width: 86%;
+            max-width: 1200px;
+            margin: 45px auto;
+        }
+
+        .section-title {
+            margin-bottom: 25px;
+        }
+
+        .section-title h2 {
+            font-size: 26px;
+        }
+
+        .section-title p {
+            margin-top: 8px;
+            color: #64748b;
+        }
+
+        /* RISK CARDS */
+
+        .risk-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+        }
+
+        .risk-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 18px rgba(15, 23, 42, 0.04);
+        }
+
+        .risk-card .number {
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .risk-card h3 {
+            margin-bottom: 12px;
+        }
+
+        .risk-card p {
+            color: #64748b;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .high {
+            border-top: 5px solid #dc2626;
+        }
+
+        .medium {
+            border-top: 5px solid #f59e0b;
+        }
+
+        .low {
+            border-top: 5px solid #16a34a;
+        }
+
+        .high .number {
+            color: #dc2626;
+        }
+
+        .medium .number {
+            color: #f59e0b;
+        }
+
+        .low .number {
+            color: #16a34a;
+        }
+
+        /* METHODOLOGY */
+
+        .methodology {
+            margin-top: 55px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 35px;
+        }
+
+        .methodology h2 {
+            margin-bottom: 15px;
+        }
+
+        .methodology > p {
+            color: #64748b;
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .method {
+            padding: 25px;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+
+        .method h3 {
+            margin-bottom: 10px;
+        }
+
+        .method p {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* SCORE */
+
+        .score-section {
+            margin-top: 55px;
+        }
+
+        .score-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        .score-table th,
+        .score-table td {
+            padding: 18px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .score-table th {
+            background: #f8fafc;
+            color: #334155;
+            font-size: 13px;
+        }
+
+        .score-table td {
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .badge-high {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-medium {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-low {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        /* INDICATORS */
+
+        .indicators {
+            margin-top: 55px;
+        }
+
+        .indicator-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+        .indicator {
+            background: white;
+            border: 1px solid #e5e7eb;
+            padding: 28px;
+            border-radius: 12px;
+        }
+
+        .indicator h3 {
+            margin-bottom: 10px;
+        }
+
+        .indicator p {
+            color: #64748b;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        /* CTA */
+
+        .cta {
+            margin-top: 60px;
+            background: #eff6ff;
+            text-align: center;
+            padding: 55px 25px;
+            border-radius: 12px;
+        }
+
+        .cta h2 {
+            margin-bottom: 12px;
+        }
+
+        .cta p {
+            color: #64748b;
+            margin-bottom: 25px;
+        }
+
+        .cta a {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            padding: 13px 23px;
+            border-radius: 7px;
+            font-weight: 700;
+        }
+
+        /* FOOTER */
+
+        footer {
+            margin-top: 60px;
+            background: #020617;
+            color: #94a3b8;
+            text-align: center;
+            padding: 35px;
+            font-size: 13px;
+        }
+
+        footer strong {
+            color: white;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 850px) {
+
+            .nav-links {
+                display: none;
+            }
+
+            .risk-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .method-grid,
+            .indicator-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header h1 {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVIGATION -->
+
+<nav class="navbar">
+
+    <div class="logo">
+        Smart<span>Market</span>
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/">Home</a>
+
+        <a href="/dashboard">
+            Market Analysis
+        </a>
+
+        <a href="/risk">
+            Risk Detection
+        </a>
+
+        <a href="/reports">
+            Reports
+        </a>
+
+        <a href="/about">
+            About
+        </a>
+
+        <a href="/dashboard" class="nav-button">
+            Open System
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- PAGE HEADER -->
+
+<section class="page-header">
+
+    <small>
+        MARKET RISK ANALYTICS
+    </small>
+
+    <h1>
+        Risk Detection & Assessment
+    </h1>
+
+    <p>
+        The system evaluates unusual price movements and
+        trading-volume behaviour to identify market activity
+        that may require further investigation.
+    </p>
+
+</section>
+
+
+<!-- MAIN CONTENT -->
+
+<div class="container">
+
+    <!-- RISK LEVELS -->
+
+    <div class="section-title">
+
+        <h2>
+            Risk Classification
+        </h2>
+
+        <p>
+            Each detected market event is assigned a risk
+            level according to the calculated risk score.
+        </p>
+
+    </div>
+
+
+    <div class="risk-grid">
+
+        <div class="risk-card high">
+
+            <div class="number">
+                60–100
+            </div>
+
+            <h3>
+                High Risk
+            </h3>
+
+            <p>
+                Indicates a combination of stronger price
+                movement and abnormal trading volume.
+                These observations require closer review.
+            </p>
+
+        </div>
+
+
+        <div class="risk-card medium">
+
+            <div class="number">
+                30–59
+            </div>
+
+            <h3>
+                Medium Risk
+            </h3>
+
+            <p>
+                Indicates noticeable market activity where
+                one or more indicators show unusual behaviour.
+            </p>
+
+        </div>
+
+
+        <div class="risk-card low">
+
+            <div class="number">
+                0–29
+            </div>
+
+            <h3>
+                Low Risk
+            </h3>
+
+            <p>
+                Indicates relatively lower abnormality based
+                on the price and volume indicators used by
+                the system.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- METHODOLOGY -->
+
+    <div class="methodology">
+
+        <h2>
+            Risk Assessment Methodology
+        </h2>
+
+        <p>
+            The system calculates a risk score by combining
+            price movement and trading-volume indicators.
+            The resulting score is used to classify the
+            observation into High, Medium or Low risk.
+        </p>
+
+
+        <div class="method-grid">
+
+            <div class="method">
+
+                <h3>
+                    Price Movement
+                </h3>
+
+                <p>
+                    The system calculates the percentage change
+                    between consecutive market observations.
+                    Larger movements contribute more to the
+                    overall risk score.
+                </p>
+
+            </div>
+
+
+            <div class="method">
+
+                <h3>
+                    Volume Ratio
+                </h3>
+
+                <p>
+                    Current trading volume is compared with the
+                    previous rolling volume baseline. A larger
+                    volume ratio indicates unusual trading activity.
+                </p>
+
+            </div>
+
+
+            <div class="method">
+
+                <h3>
+                    Combined Risk Score
+                </h3>
+
+                <p>
+                    Price and volume contributions are combined
+                    to produce a score between 0 and 100.
+                </p>
+
+            </div>
+
+
+            <div class="method">
+
+                <h3>
+                    Suspicious Event
+                </h3>
+
+                <p>
+                    An observation is highlighted when unusual
+                    price movement occurs together with abnormal
+                    trading volume.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- SCORE TABLE -->
+
+    <div class="score-section">
+
+        <div class="section-title">
+
+            <h2>
+                Risk Score Interpretation
+            </h2>
+
+            <p>
+                Reference ranges used by the detection system.
+            </p>
+
+        </div>
+
+
+        <table class="score-table">
+
+            <thead>
+
+                <tr>
+                    <th>
+                        Risk Level
+                    </th>
+
+                    <th>
+                        Score Range
+                    </th>
+
+                    <th>
+                        Interpretation
+                    </th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr>
+
+                    <td>
+                        <span class="badge badge-high">
+                            High
+                        </span>
+                    </td>
+
+                    <td>
+                        60 – 100
+                    </td>
+
+                    <td>
+                        Strong abnormal market indicators
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <span class="badge badge-medium">
+                            Medium
+                        </span>
+                    </td>
+
+                    <td>
+                        30 – 59
+                    </td>
+
+                    <td>
+                        Noticeable unusual market activity
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td>
+                        <span class="badge badge-low">
+                            Low
+                        </span>
+                    </td>
+
+                    <td>
+                        0 – 29
+                    </td>
+
+                    <td>
+                        Lower detected abnormality
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- DETECTION INDICATORS -->
+
+    <div class="indicators">
+
+        <div class="section-title">
+
+            <h2>
+                Detection Indicators
+            </h2>
+
+            <p>
+                The system focuses on two major market indicators.
+            </p>
+
+        </div>
+
+
+        <div class="indicator-grid">
+
+            <div class="indicator">
+
+                <h3>
+                    📈 Price Spike Detection
+                </h3>
+
+                <p>
+                    The system monitors percentage price changes
+                    between consecutive observations. Significant
+                    changes are treated as potential abnormal
+                    price activity.
+                </p>
+
+            </div>
+
+
+            <div class="indicator">
+
+                <h3>
+                    📊 Volume Spike Detection
+                </h3>
+
+                <p>
+                    The system compares current trading volume
+                    with a rolling historical baseline to identify
+                    unusually high trading activity.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CTA -->
+
+    <div class="cta">
+
+        <h2>
+            Analyze Market Risk
+        </h2>
+
+        <p>
+            Select a stock and view its current market
+            surveillance results.
+        </p>
+
+        <a href="/dashboard">
+            Open Market Analysis
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<footer>
+
+    <p>
+        <strong>
+            Smart Market Price Manipulation Detection System
+        </strong>
+    </p>
+
+    <p style="margin-top: 10px;">
+        Market surveillance • Anomaly detection • Risk analytics
+    </p>
+
+    <p style="margin-top: 15px;">
+        © 2026 Smart Market Surveillance System
+    </p>
+
+</footer>
+
+</body>
+</html>

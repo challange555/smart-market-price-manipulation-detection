@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Project Information | Smart Market</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f7fb;
+            color: #17213b;
+        }
+
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        nav {
+            height: 78px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 7%;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: #2864e6;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #17213b;
+            font-weight: 600;
+        }
+
+        .nav-links a:hover {
+            color: #2864e6;
+        }
+
+        .open-system {
+            background: #2864e6;
+            color: white !important;
+            padding: 13px 22px;
+            border-radius: 8px;
+        }
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero {
+            text-align: center;
+
+            padding: 70px 20px;
+
+            background: linear-gradient(
+                135deg,
+                #eef4ff,
+                #ffffff
+            );
+        }
+
+        .badge {
+            display: inline-block;
+
+            background: #e1ecff;
+            color: #2864e6;
+
+            padding: 9px 18px;
+
+            border-radius: 25px;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: 45px;
+            margin-bottom: 18px;
+        }
+
+        .hero h1 span {
+            color: #2864e6;
+        }
+
+        .hero p {
+            max-width: 800px;
+            margin: auto;
+
+            color: #60708d;
+
+            font-size: 17px;
+            line-height: 1.8;
+        }
+
+        /* =========================
+           CONTAINER
+        ========================= */
+
+        .container {
+            width: 86%;
+            max-width: 1150px;
+
+            margin: 40px auto;
+        }
+
+        .section {
+            background: white;
+
+            border-radius: 16px;
+
+            padding: 32px;
+
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 8px 25px rgba(20, 40, 80, 0.06);
+        }
+
+        .section h2 {
+            font-size: 25px;
+            margin-bottom: 18px;
+        }
+
+        .section h2 span {
+            color: #2864e6;
+        }
+
+        .section p {
+            color: #60708d;
+
+            font-size: 16px;
+
+            line-height: 1.8;
+        }
+
+        /* =========================
+           PROJECT INFO GRID
+        ========================= */
+
+        .info-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 18px;
+
+            margin-top: 20px;
+        }
+
+        .info-card {
+            background: #f8fafc;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 12px;
+
+            padding: 22px;
+        }
+
+        .info-card h3 {
+            font-size: 17px;
+
+            margin-bottom: 8px;
+        }
+
+        .info-card p {
+            font-size: 14px;
+
+            line-height: 1.6;
+        }
+
+        /* =========================
+           TECHNOLOGY
+        ========================= */
+
+        .technology {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 18px;
+
+            margin-top: 20px;
+        }
+
+        .tech {
+            background: #f8fafc;
+
+            border-radius: 12px;
+
+            padding: 22px;
+
+            border: 1px solid #e5e7eb;
+        }
+
+        .tech-icon {
+            font-size: 28px;
+
+            margin-bottom: 12px;
+        }
+
+        .tech h3 {
+            margin-bottom: 8px;
+        }
+
+        .tech p {
+            font-size: 14px;
+        }
+
+        /* =========================
+           OBJECTIVES
+        ========================= */
+
+        .objectives {
+            margin-top: 15px;
+        }
+
+        .objectives li {
+            margin-bottom: 12px;
+
+            color: #60708d;
+
+            line-height: 1.6;
+        }
+
+        /* =========================
+           WORKFLOW
+        ========================= */
+
+        .workflow {
+            display: grid;
+
+            grid-template-columns:
+                repeat(5, 1fr);
+
+            gap: 12px;
+
+            margin-top: 25px;
+        }
+
+        .step {
+            text-align: center;
+
+            background: #f8fafc;
+
+            border-radius: 12px;
+
+            padding: 20px 12px;
+        }
+
+        .number {
+            width: 40px;
+            height: 40px;
+
+            margin: 0 auto 12px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background: #2864e6;
+
+            color: white;
+
+            font-weight: 700;
+        }
+
+        .step h3 {
+            font-size: 15px;
+
+            margin-bottom: 7px;
+        }
+
+        .step p {
+            font-size: 12px;
+        }
+
+        /* =========================
+           CTA
+        ========================= */
+
+        .cta {
+            text-align: center;
+
+            background: #2864e6;
+
+            color: white;
+
+            border-radius: 16px;
+
+            padding: 40px 25px;
+
+            margin-bottom: 30px;
+        }
+
+        .cta h2 {
+            margin-bottom: 12px;
+        }
+
+        .cta p {
+            color: #e5edff;
+
+            margin-bottom: 22px;
+        }
+
+        .cta a {
+            display: inline-block;
+
+            background: white;
+
+            color: #2864e6;
+
+            padding: 14px 25px;
+
+            border-radius: 8px;
+
+            text-decoration: none;
+
+            font-weight: 700;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            text-align: center;
+
+            background: white;
+
+            border-top: 1px solid #e5e7eb;
+
+            padding: 30px;
+
+            color: #687792;
+
+            font-size: 14px;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 900px) {
+
+            .technology {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .workflow {
+                grid-template-columns: 1fr 1fr;
+            }
+
+        }
+
+        @media (max-width: 650px) {
+
+            nav {
+                height: auto;
+
+                padding: 20px;
+
+                flex-direction: column;
+
+                gap: 20px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+
+                justify-content: center;
+
+                gap: 15px;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .container {
+                width: 92%;
+            }
+
+            .info-grid,
+            .technology,
+            .workflow {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     NAVIGATION
+========================= -->
+
+<nav>
+
+    <div class="logo">
+        Smart<span>Market</span>
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/">
+            Home
+        </a>
+
+        <a href="/dashboard">
+            Market Analysis
+        </a>
+
+        <a href="/risk">
+            Risk Detection
+        </a>
+
+        <a href="/reports">
+            Reports
+        </a>
+
+        <a href="/about">
+            About
+        </a>
+
+        <a href="/dashboard"
+           class="open-system">
+
+            Open System
+
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- =========================
+     HERO
+========================= -->
+
+<section class="hero">
+
+    <div class="badge">
+        PROJECT INFORMATION
+    </div>
+
+    <h1>
+        Smart <span>Market</span>
+    </h1>
+
+    <p>
+        Smart Market Price Manipulation Detection System
+        is a data-driven market surveillance project designed
+        to identify unusual price and trading-volume activity
+        and classify detected events using automated risk scoring.
+    </p>
+
+</section>
+
+
+<!-- =========================
+     MAIN CONTENT
+========================= -->
+
+<div class="container">
+
+
+    <!-- PROJECT OVERVIEW -->
+
+    <div class="section">
+
+        <h2>
+            Project <span>Overview</span>
+        </h2>
+
+        <p>
+            The Smart Market Price Manipulation Detection System
+            is a final-year Data Science and Analytics project.
+            The system analyses financial market data to identify
+            unusual combinations of price movement and trading
+            volume.
+        </p>
+
+        <br>
+
+        <p>
+            The application provides market analysis, suspicious
+            event detection, automated risk scoring, risk-level
+            classification and downloadable reports through a
+            web-based interface.
+        </p>
+
+    </div>
+
+
+    <!-- PROJECT DETAILS -->
+
+    <div class="section">
+
+        <h2>
+            Project <span>Details</span>
+        </h2>
+
+        <div class="info-grid">
+
+
+            <div class="info-card">
+
+                <h3>
+                    Project Name
+                </h3>
+
+                <p>
+                    Smart Market Price Manipulation
+                    Detection System
+                </p>
+
+            </div>
+
+
+            <div class="info-card">
+
+                <h3>
+                    Project Type
+                </h3>
+
+                <p>
+                    Final Year Data Science &amp;
+                    Analytics Project
+                </p>
+
+            </div>
+
+
+            <div class="info-card">
+
+                <h3>
+                    Main Objective
+                </h3>
+
+                <p>
+                    Detect unusual price and trading-volume
+                    activity in financial market data.
+                </p>
+
+            </div>
+
+
+            <div class="info-card">
+
+                <h3>
+                    Application Type
+                </h3>
+
+                <p>
+                    Web-based market surveillance and
+                    risk analysis application.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- OBJECTIVES -->
+
+    <div class="section">
+
+        <h2>
+            Project <span>Objectives</span>
+        </h2>
+
+        <ul class="objectives">
+
+            <li>
+                Analyse financial market price and
+                trading-volume data.
+            </li>
+
+            <li>
+                Identify unusual price movements.
+            </li>
+
+            <li>
+                Detect abnormal trading-volume activity.
+            </li>
+
+            <li>
+                Combine price and volume indicators
+                to identify suspicious events.
+            </li>
+
+            <li>
+                Calculate an automated risk score
+                for detected market activity.
+            </li>
+
+            <li>
+                Generate reports containing suspicious
+                market events.
+            </li>
+
+        </ul>
+
+    </div>
+
+
+    <!-- TECHNOLOGY -->
+
+    <div class="section">
+
+        <h2>
+            Technologies <span>Used</span>
+        </h2>
+
+        <div class="technology">
+
+
+            <div class="tech">
+
+                <div class="tech-icon">
+                    🐍
+                </div>
+
+                <h3>
+                    Python
+                </h3>
+
+                <p>
+                    Used for market-data processing,
+                    detection logic and risk calculations.
+                </p>
+
+            </div>
+
+
+            <div class="tech">
+
+                <div class="tech-icon">
+                    🌐
+                </div>
+
+                <h3>
+                    Flask
+                </h3>
+
+                <p>
+                    Used to build the backend web application
+                    and API endpoints.
+                </p>
+
+            </div>
+
+
+            <div class="tech">
+
+                <div class="tech-icon">
+                    📊
+                </div>
+
+                <h3>
+                    Pandas
+                </h3>
+
+                <p>
+                    Used for financial data processing,
+                    transformation and analysis.
+                </p>
+
+            </div>
+
+
+            <div class="tech">
+
+                <div class="tech-icon">
+                    📈
+                </div>
+
+                <h3>
+                    yfinance
+                </h3>
+
+                <p>
+                    Used to retrieve intraday market
+                    information for supported stocks.
+                </p>
+
+            </div>
+
+
+            <div class="tech">
+
+                <div class="tech-icon">
+                    💻
+                </div>
+
+                <h3>
+                    HTML &amp; CSS
+                </h3>
+
+                <p>
+                    Used to create the user interface
+                    and responsive web pages.
+                </p>
+
+            </div>
+
+
+            <div class="tech">
+
+                <div class="tech-icon">
+                    ⚙️
+                </div>
+
+                <h3>
+                    JavaScript
+                </h3>
+
+                <p>
+                    Used for company search, API requests,
+                    charts and dynamic report display.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- SYSTEM WORKFLOW -->
+
+    <div class="section">
+
+        <h2>
+            System <span>Workflow</span>
+        </h2>
+
+        <div class="workflow">
+
+
+            <div class="step">
+
+                <div class="number">
+                    1
+                </div>
+
+                <h3>
+                    Select Stock
+                </h3>
+
+                <p>
+                    Select a company or ticker.
+                </p>
+
+            </div>
+
+
+            <div class="step">
+
+                <div class="number">
+                    2
+                </div>
+
+                <h3>
+                    Get Data
+                </h3>
+
+                <p>
+                    Retrieve intraday market data.
+                </p>
+
+            </div>
+
+
+            <div class="step">
+
+                <div class="number">
+                    3
+                </div>
+
+                <h3>
+                    Detect
+                </h3>
+
+                <p>
+                    Analyse price and volume patterns.
+                </p>
+
+            </div>
+
+
+            <div class="step">
+
+                <div class="number">
+                    4
+                </div>
+
+                <h3>
+                    Risk Score
+                </h3>
+
+                <p>
+                    Calculate the market risk score.
+                </p>
+
+            </div>
+
+
+            <div class="step">
+
+                <div class="number">
+                    5
+                </div>
+
+                <h3>
+                    Report
+                </h3>
+
+                <p>
+                    Generate suspicious-event reports.
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- CTA -->
+
+    <div class="cta">
+
+        <h2>
+            Explore the Market Surveillance System
+        </h2>
+
+        <p>
+            Analyse market activity and detect unusual
+            price and volume patterns.
+        </p>
+
+        <a href="/dashboard">
+            Start Market Analysis
+        </a>
+
+    </div>
+
+
+</div>
+
+
+<!-- FOOTER -->
+
+<footer>
+
+    Smart Market Price Manipulation Detection System
+
+    <br><br>
+
+    Final Year Data Science &amp; Analytics Project
+
+</footer>
+
+
+</body>
+
+</html>
