@@ -36,7 +36,6 @@ app.secret_key = "smart-market-surveillance-secret-key"
 # ============================================================
 
 def login_required():
-
     if not session.get("logged_in"):
         return False
 
@@ -44,13 +43,13 @@ def login_required():
 
 
 # ============================================================
-# HOME PAGE
+# ROOT PAGE
 # ============================================================
 
 @app.route("/")
 def home():
-
-    return render_template("home.html")
+    # Project link opens login page directly
+    return redirect(url_for("login"))
 
 
 # ============================================================
@@ -60,9 +59,9 @@ def home():
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
-    # Already logged in
+    # If already logged in, go to Home page
     if session.get("logged_in"):
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("home_page"))
 
     if request.method == "POST":
 
@@ -85,8 +84,9 @@ def login():
             session["logged_in"] = True
             session["username"] = username
 
+            # After successful login → Home page
             return redirect(
-                url_for("dashboard")
+                url_for("home_page")
             )
 
         return render_template(
@@ -95,6 +95,23 @@ def login():
         )
 
     return render_template("login.html")
+
+
+# ============================================================
+# LOGGED-IN HOME PAGE
+# ============================================================
+
+@app.route("/home")
+def home_page():
+
+    if not login_required():
+        return redirect(
+            url_for("login")
+        )
+
+    return render_template(
+        "home.html"
+    )
 
 
 # ============================================================
@@ -260,7 +277,6 @@ def get_manipulation_reason(row):
         price_change >= 0.50
         and volume_ratio >= 3.0
     ):
-
         return (
             "Extreme price movement + "
             "extreme trading volume"
@@ -270,7 +286,6 @@ def get_manipulation_reason(row):
         price_change >= 0.20
         and volume_ratio >= 2.0
     ):
-
         return (
             "High price movement + "
             "abnormal trading volume"
@@ -280,7 +295,6 @@ def get_manipulation_reason(row):
         price_change >= 0.10
         and volume_ratio >= 1.5
     ):
-
         return (
             "Significant price movement + "
             "increased trading volume"
@@ -290,18 +304,15 @@ def get_manipulation_reason(row):
         price_change >= 0.03
         and volume_ratio >= 1.2
     ):
-
         return (
             "Unusual price movement + "
             "volume spike"
         )
 
     elif price_change >= 0.03:
-
         return "Unusual price movement"
 
     elif volume_ratio >= 1.2:
-
         return "Unusual trading volume"
 
     return "Unusual market activity"
@@ -368,7 +379,6 @@ def analyze():
         )
 
         if result.empty:
-
             return jsonify({
                 "error":
                     "No market data available."
@@ -532,7 +542,6 @@ def download_report():
         )
 
         if result.empty:
-
             return jsonify({
                 "error":
                     "No market data available."
@@ -600,19 +609,15 @@ def download_report():
         )
 
         csv_data = io.BytesIO(
-            output
-            .getvalue()
-            .encode("utf-8")
+            output.getvalue().encode(
+                "utf-8"
+            )
         )
 
         return send_file(
-
             csv_data,
-
             mimetype="text/csv",
-
             as_attachment=True,
-
             download_name=(
                 f"{stock}_"
                 "live_manipulation_report.csv"
@@ -632,6 +637,12 @@ def download_report():
 
 @app.errorhandler(404)
 def page_not_found(error):
+
+    # Keep unknown pages protected by login
+    if not login_required():
+        return redirect(
+            url_for("login")
+        )
 
     return render_template(
         "home.html"

@@ -61,14 +61,18 @@
             color: #2864e6;
         }
 
-        .open-system {
+        /* =========================
+           ACTIVE HOME BUTTON
+        ========================= */
+
+        .home-active {
             background: #2864e6;
             color: white !important;
             padding: 13px 24px;
             border-radius: 9px;
         }
 
-        .open-system:hover {
+        .home-active:hover {
             background: #1f55c8;
         }
 
@@ -347,7 +351,10 @@
 
         <div class="nav-links">
 
-            <a href="/">Home</a>
+            <!-- HOME IS ACTIVE -->
+            <a href="/home" class="home-active">
+                Home
+            </a>
 
             <a href="/dashboard">
                 Market Analysis
@@ -365,7 +372,8 @@
                 About
             </a>
 
-            <a href="/dashboard" class="open-system">
+            <!-- OPEN SYSTEM IS NOW A NORMAL LINK -->
+            <a href="/dashboard">
                 Open System
             </a>
 
@@ -401,13 +409,13 @@
 
             <div class="buttons">
 
-                <!-- WORKING BUTTON -->
+                <!-- START MARKET ANALYSIS -->
                 <a href="/dashboard" class="primary-btn">
                     Start Market Analysis
                 </a>
 
 
-                <!-- FIXED BUTTON -->
+                <!-- LEARN ABOUT SYSTEM -->
                 <a href="/about" class="secondary-btn">
                     Learn About System
                 </a>
