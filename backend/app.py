@@ -1,5 +1,4 @@
 import io
-import os
 import pandas as pd
 
 from flask import (
@@ -36,6 +35,7 @@ app.secret_key = "smart-market-surveillance-secret-key"
 # ============================================================
 
 def login_required():
+
     if not session.get("logged_in"):
         return False
 
@@ -48,8 +48,11 @@ def login_required():
 
 @app.route("/")
 def home():
+
     # Project link opens login page directly
-    return redirect(url_for("login"))
+    return redirect(
+        url_for("login")
+    )
 
 
 # ============================================================
@@ -61,7 +64,10 @@ def login():
 
     # If already logged in, go to Home page
     if session.get("logged_in"):
-        return redirect(url_for("home_page"))
+
+        return redirect(
+            url_for("home_page")
+        )
 
     if request.method == "POST":
 
@@ -79,7 +85,10 @@ def login():
         # LOGIN DETAILS
         # ----------------------------------------------------
 
-        if username == "admin" and password == "admin123":
+        if (
+            username == "admin"
+            and password == "admin123"
+        ):
 
             session["logged_in"] = True
             session["username"] = username
@@ -94,7 +103,9 @@ def login():
             error="Invalid username or password."
         )
 
-    return render_template("login.html")
+    return render_template(
+        "login.html"
+    )
 
 
 # ============================================================
@@ -105,6 +116,7 @@ def login():
 def home_page():
 
     if not login_required():
+
         return redirect(
             url_for("login")
         )
@@ -137,6 +149,7 @@ def logout():
 def dashboard():
 
     if not login_required():
+
         return redirect(
             url_for("login")
         )
@@ -154,6 +167,7 @@ def dashboard():
 def risk():
 
     if not login_required():
+
         return redirect(
             url_for("login")
         )
@@ -171,6 +185,7 @@ def risk():
 def reports():
 
     if not login_required():
+
         return redirect(
             url_for("login")
         )
@@ -188,6 +203,7 @@ def reports():
 def about():
 
     if not login_required():
+
         return redirect(
             url_for("login")
         )
@@ -205,6 +221,7 @@ def about():
 def project():
 
     if not login_required():
+
         return redirect(
             url_for("login")
         )
@@ -222,41 +239,95 @@ def project():
 def stocks():
 
     if not login_required():
+
         return jsonify({
             "error": "Login required."
         }), 401
 
-    stocks_folder = os.path.join(
-        os.path.dirname(
-            os.path.dirname(
-                os.path.abspath(__file__)
-            )
-        ),
-        "database",
-        "market_data",
-        "stocks"
-    )
+    # --------------------------------------------------------
+    # SUPPORTED COMPANIES
+    # --------------------------------------------------------
 
-    if not os.path.exists(stocks_folder):
-        return jsonify([])
+    stocks_list = [
 
-    stocks_list = []
+        # Technology
+        "AAPL",
+        "MSFT",
+        "AMZN",
+        "GOOGL",
+        "META",
+        "NVDA",
+        "TSLA",
+        "NFLX",
+        "AMD",
+        "INTC",
+        "ORCL",
+        "IBM",
+        "ADBE",
+        "CRM",
+        "CSCO",
+        "QCOM",
+        "AVGO",
+        "TXN",
+        "AMAT",
+        "MU",
 
-    for file in os.listdir(stocks_folder):
+        # Financial
+        "JPM",
+        "BAC",
+        "WFC",
+        "C",
+        "GS",
+        "MS",
+        "V",
+        "MA",
+        "AXP",
+        "BLK",
 
-        if file.lower().endswith(".csv"):
+        # Consumer
+        "WMT",
+        "COST",
+        "HD",
+        "NKE",
+        "MCD",
+        "KO",
+        "PEP",
+        "DIS",
+        "SBUX",
+        "TGT",
 
-            ticker = os.path.splitext(
-                file
-            )[0].upper()
+        # Internet / Digital
+        "UBER",
+        "SPOT",
+        "PYPL",
+        "SHOP",
+        "ABNB",
+        "SNAP",
+        "PINS",
+        "PLTR",
+        "COIN",
 
-            stocks_list.append(ticker)
+        # Other major companies
+        "BA",
+        "CAT",
+        "GE",
+        "F",
+        "GM",
+        "XOM",
+        "CVX",
+        "JNJ",
+        "PFE",
+        "MRK"
+    ]
 
+    # Remove duplicates and sort
     stocks_list = sorted(
         set(stocks_list)
     )
 
-    return jsonify(stocks_list)
+    return jsonify(
+        stocks_list
+    )
 
 
 # ============================================================
@@ -277,6 +348,7 @@ def get_manipulation_reason(row):
         price_change >= 0.50
         and volume_ratio >= 3.0
     ):
+
         return (
             "Extreme price movement + "
             "extreme trading volume"
@@ -286,6 +358,7 @@ def get_manipulation_reason(row):
         price_change >= 0.20
         and volume_ratio >= 2.0
     ):
+
         return (
             "High price movement + "
             "abnormal trading volume"
@@ -295,6 +368,7 @@ def get_manipulation_reason(row):
         price_change >= 0.10
         and volume_ratio >= 1.5
     ):
+
         return (
             "Significant price movement + "
             "increased trading volume"
@@ -304,18 +378,27 @@ def get_manipulation_reason(row):
         price_change >= 0.03
         and volume_ratio >= 1.2
     ):
+
         return (
             "Unusual price movement + "
             "volume spike"
         )
 
     elif price_change >= 0.03:
-        return "Unusual price movement"
+
+        return (
+            "Unusual price movement"
+        )
 
     elif volume_ratio >= 1.2:
-        return "Unusual trading volume"
 
-    return "Unusual market activity"
+        return (
+            "Unusual trading volume"
+        )
+
+    return (
+        "Unusual market activity"
+    )
 
 
 # ============================================================
@@ -324,12 +407,17 @@ def get_manipulation_reason(row):
 
 def perform_analysis(stock):
 
-    df = get_live_data(stock)
+    df = get_live_data(
+        stock
+    )
 
     if df.empty:
+
         return pd.DataFrame()
 
-    result = detect_price_and_volume(df)
+    result = detect_price_and_volume(
+        df
+    )
 
     risk_results = result.apply(
         calculate_risk_score,
@@ -363,6 +451,7 @@ def perform_analysis(stock):
 def analyze():
 
     if not login_required():
+
         return jsonify({
             "error": "Login required."
         }), 401
@@ -379,6 +468,7 @@ def analyze():
         )
 
         if result.empty:
+
             return jsonify({
                 "error":
                     "No market data available."
@@ -526,6 +616,7 @@ def analyze():
 def download_report():
 
     if not login_required():
+
         return jsonify({
             "error": "Login required."
         }), 401
@@ -542,6 +633,7 @@ def download_report():
         )
 
         if result.empty:
+
             return jsonify({
                 "error":
                     "No market data available."
@@ -640,6 +732,7 @@ def page_not_found(error):
 
     # Keep unknown pages protected by login
     if not login_required():
+
         return redirect(
             url_for("login")
         )
