@@ -26,7 +26,6 @@ app = Flask(
     template_folder="../frontend/templates"
 )
 
-# Secret key for login sessions
 app.secret_key = "smart-market-surveillance-secret-key"
 
 
@@ -49,7 +48,6 @@ def login_required():
 @app.route("/")
 def home():
 
-    # Project link opens login page directly
     return redirect(
         url_for("login")
     )
@@ -62,7 +60,6 @@ def home():
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
-    # If already logged in, go to Home page
     if session.get("logged_in"):
 
         return redirect(
@@ -81,10 +78,6 @@ def login():
             ""
         )
 
-        # ----------------------------------------------------
-        # LOGIN DETAILS
-        # ----------------------------------------------------
-
         if (
             username == "admin"
             and password == "admin123"
@@ -93,7 +86,6 @@ def login():
             session["logged_in"] = True
             session["username"] = username
 
-            # After successful login → Home page
             return redirect(
                 url_for("home_page")
             )
@@ -245,88 +237,84 @@ def stocks():
         }), 401
 
     # --------------------------------------------------------
-    # SUPPORTED COMPANIES
+    # POPULAR STOCKS
+    # --------------------------------------------------------
+    # These symbols are used for live analysis through
+    # Yahoo Finance. They do not require CSV files in GitHub.
     # --------------------------------------------------------
 
-    stocks_list = [
+    stock_list = [
 
         # Technology
         "AAPL",
         "MSFT",
-        "AMZN",
         "GOOGL",
-        "META",
+        "AMZN",
         "NVDA",
+        "META",
         "TSLA",
         "NFLX",
         "AMD",
         "INTC",
         "ORCL",
-        "IBM",
-        "ADBE",
         "CRM",
+        "ADBE",
         "CSCO",
         "QCOM",
         "AVGO",
         "TXN",
-        "AMAT",
-        "MU",
+        "IBM",
+        "NOW",
+        "INTU",
 
-        # Financial
+        # Internet / Digital
+        "PYPL",
+        "UBER",
+        "ABNB",
+        "SHOP",
+        "SPOT",
+
+        # Banking / Financial
         "JPM",
         "BAC",
         "WFC",
-        "C",
         "GS",
         "MS",
+        "C",
         "V",
         "MA",
         "AXP",
         "BLK",
 
-        # Consumer
+        # Retail / Consumer
         "WMT",
         "COST",
         "HD",
-        "NKE",
         "MCD",
+        "NKE",
         "KO",
         "PEP",
         "DIS",
         "SBUX",
         "TGT",
 
-        # Internet / Digital
-        "UBER",
-        "SPOT",
-        "PYPL",
-        "SHOP",
-        "ABNB",
-        "SNAP",
-        "PINS",
-        "PLTR",
-        "COIN",
-
-        # Other major companies
-        "BA",
-        "CAT",
-        "GE",
-        "F",
-        "GM",
-        "XOM",
-        "CVX",
+        # Healthcare
         "JNJ",
         "PFE",
-        "MRK"
+        "MRK",
+        "ABBV",
+        "LLY",
+
+        # Energy / Industrial
+        "XOM",
+        "CVX",
+        "COP",
+        "CAT",
+        "BA"
     ]
 
-    # Remove duplicates and sort
-    stocks_list = sorted(
-        set(stocks_list)
-    )
-
     return jsonify(
-        stocks_list
+        stock_list
     )
 
 
@@ -512,6 +500,10 @@ def analyze():
             "Datetime"
         ].astype(str)
 
+        # ----------------------------------------------------
+        # STATISTICS
+        # ----------------------------------------------------
+
         total_records = len(
             result
         )
@@ -544,6 +536,10 @@ def analyze():
         max_risk = int(
             result["Risk_Score"].max()
         )
+
+        # ----------------------------------------------------
+        # CURRENT MARKET VALUES
+        # ----------------------------------------------------
 
         latest = result.iloc[-1]
 
@@ -682,7 +678,6 @@ def download_report():
 
                 "Manipulation_Reason":
                     "Manipulation Reason"
-
             },
             inplace=True
         )
@@ -730,7 +725,6 @@ def download_report():
 @app.errorhandler(404)
 def page_not_found(error):
 
-    # Keep unknown pages protected by login
     if not login_required():
 
         return redirect(
